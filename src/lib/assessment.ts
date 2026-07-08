@@ -6,6 +6,7 @@ export type ActivityLevel =
   | "active"
   | "very_active";
 export type Goal = "fat_loss" | "muscle_gain" | "maintain";
+export type StressLevel = "low" | "medium" | "high";
 
 export interface AssessmentInput {
   gender: Gender;
@@ -20,6 +21,27 @@ export interface AssessmentInput {
   waistCm?: number;
   neckCm?: number;
   hipCm?: number; // required for females if using Navy method
+  // Lifestyle context — used for advisory tips and the safety notice,
+  // not for the core BMI/BMR/body-fat math.
+  sleepHours?: number;
+  stressLevel?: StressLevel;
+  medicalConditions?: string[]; // empty/["none"] means no conditions noted
+}
+
+export interface MacroBreakdown {
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  proteinPerKg: number;
+}
+
+export interface RoadmapPhase {
+  phase: number;
+  weeks: string;
+  title: string;
+  focus: string[];
+  expectedOutcome: string;
 }
 
 export interface AssessmentResult {
@@ -30,8 +52,12 @@ export interface AssessmentResult {
   bodyFatPercent: number;
   bodyFatMethod: "navy" | "estimate";
   bodyFatCategory: "Essential" | "Athletes" | "Fitness" | "Acceptable" | "Obese";
+  bodyClassification: string;
   fitnessScore: number;
   fitnessLabel: "Needs Improvement" | "Fair" | "Good" | "Excellent";
+  macros: MacroBreakdown;
+  roadmap: RoadmapPhase[];
+  hasMedicalFlag: boolean;
   recommendations: {
     dailyCalories: number;
     proteinGrams: number;
@@ -158,43 +184,122 @@ function fitnessLabel(score: number): AssessmentResult["fitnessLabel"] {
   return "Excellent";
 }
 
+function buildMacros(
+  goal: Goal,
+  gender: Gender,
+  weightKg: number,
+  tdee: number
+): MacroBreakdown {
+  const GOAL_ADJUSTMENT: Record<Goal, { calorieDelta: number; proteinPerKg: number }> = {
+    fat_loss: { calorieDelta: -500, proteinPerKg: 2.0 },
+    muscle_gain: { calorieDelta: 300, proteinPerKg: 1.8 },
+    maintain: { calorieDelta: 0, proteinPerKg: 1.6 },
+  };
+  const { calorieDelta, proteinPerKg } = GOAL_ADJUSTMENT[goal];
+  const minCalories = gender === "male" ? 1500 : 1200;
+  const calories = Math.max(minCalories, Math.round(tdee + calorieDelta));
+
+  const proteinG = Math.round(proteinPerKg * weightKg);
+  const proteinCalories = proteinG * 4;
+  const remainingCalories = Math.max(0, calories - proteinCalories);
+  const carbsG = Math.round((remainingCalories * 0.55) / 4);
+  const fatG = Math.round((remainingCalories * 0.45) / 9);
+
+  return { calories, proteinG, carbsG, fatG, proteinPerKg };
+}
+
+function buildRoadmap(
+  goal: Goal,
+  bmiCat: AssessmentResult["bmiCategory"]
+): RoadmapPhase[] {
+  const phase1Focus =
+    goal === "fat_loss"
+      ? ["Build the calorie deficit habit", "Learn core lifts with light-moderate weight", "3–4 training sessions/week"]
+      : goal === "muscle_gain"
+      ? ["Learn core lifts with focus on form", "Establish a consistent surplus", "3–4 training sessions/week"]
+      : ["Build consistent training habit", "Dial in daily nutrition routine", "3 sessions/week"];
+
+  const phase2Focus =
+    goal === "fat_loss"
+      ? ["Increase training volume", "Add conditioning/cardio work", "Tighten up nutrition adherence"]
+      : goal === "muscle_gain"
+      ? ["Progressive overload — increase working weights", "Add accessory volume", "Track strength PRs"]
+      : ["Introduce progressive overload", "Refine macros based on progress", "4 sessions/week"];
+
+  const phase3Focus =
+    goal === "fat_loss"
+      ? ["Push final phase of fat loss", "Maintain strength with reduced calories", "Reassess with InBody scan"]
+      : goal === "muscle_gain"
+      ? ["Peak intensity block", "Deload week if needed", "Reassess with InBody scan"]
+      : ["Fine-tune based on 8 weeks of data", "Set next 90-day goal", "Reassess with InBody scan"];
+
+  const outcomeCaveat =
+    bmiCat === "Obese" || bmiCat === "Overweight"
+      ? "Individual results vary with adherence, sleep, and starting point — this is a general guide, not a guarantee."
+      : "Individual results vary — use this as a general guide, not a guarantee.";
+
+  return [
+    {
+      phase: 1,
+      weeks: "Weeks 1–4",
+      title: "Foundation",
+      focus: phase1Focus,
+      expectedOutcome: `Focus on adherence over intensity. ${outcomeCaveat}`,
+    },
+    {
+      phase: 2,
+      weeks: "Weeks 5–8",
+      title: "Progression",
+      focus: phase2Focus,
+      expectedOutcome:
+        "This is where most visible changes start compounding, provided Phase 1 habits held.",
+    },
+    {
+      phase: 3,
+      weeks: "Weeks 9–12",
+      title: "Intensification",
+      focus: phase3Focus,
+      expectedOutcome:
+        "Reassess with a fresh Body Assessment and InBody scan to set your next 90-day block.",
+    },
+  ];
+}
+
 function buildRecommendations(
   input: AssessmentInput,
-  tdee: number,
+  macros: MacroBreakdown,
   bmiCat: AssessmentResult["bmiCategory"],
   bfCat: AssessmentResult["bodyFatCategory"]
 ): AssessmentResult["recommendations"] {
-  const { goal, weightKg, gender } = input;
+  const { goal } = input;
 
-  let dailyCalories = tdee;
-  let proteinPerKg = 1.8;
-  let suggestedProgram = "Online Coaching (FitWid)";
-  let summary = "";
+  const suggestedProgram =
+    goal === "fat_loss"
+      ? "Fat Loss + Muscle Retention"
+      : goal === "muscle_gain"
+      ? "Lean Muscle Building"
+      : "Online Coaching (FitWid)";
 
-  if (goal === "fat_loss") {
-    dailyCalories = tdee - 500;
-    proteinPerKg = 2.0;
-    suggestedProgram = "Fat Loss + Muscle Retention";
-    summary =
-      "A moderate calorie deficit paired with higher protein intake will help you lose fat while protecting the muscle you already have.";
-  } else if (goal === "muscle_gain") {
-    dailyCalories = tdee + 300;
-    proteinPerKg = 1.8;
-    suggestedProgram = "Lean Muscle Building";
-    summary =
-      "A modest calorie surplus with consistent progressive overload is the most reliable path to lean muscle gain without excess fat.";
-  } else {
-    dailyCalories = tdee;
-    proteinPerKg = 1.6;
-    suggestedProgram = "Online Coaching (FitWid)";
-    summary =
-      "Your goal is maintenance — focus on consistency in training and nutrition rather than aggressive changes.";
-  }
-
-  const minCalories = gender === "male" ? 1500 : 1200;
-  dailyCalories = Math.max(minCalories, dailyCalories);
+  const summary =
+    goal === "fat_loss"
+      ? "A moderate calorie deficit paired with higher protein intake will help you lose fat while protecting the muscle you already have."
+      : goal === "muscle_gain"
+      ? "A modest calorie surplus with consistent progressive overload is the most reliable path to lean muscle gain without excess fat."
+      : "Your goal is maintenance — focus on consistency in training and nutrition rather than aggressive changes.";
 
   const tips: string[] = [];
+
+  const hasMedicalFlag = !!(
+    input.medicalConditions &&
+    input.medicalConditions.length > 0 &&
+    !input.medicalConditions.every((c) => c.toLowerCase() === "none")
+  );
+  if (hasMedicalFlag) {
+    tips.push(
+      "You noted a medical condition — please get clearance from a doctor before starting this or any new training/nutrition program. We haven't tailored anything below for a specific condition."
+    );
+  }
+
   if (bmiCat === "Underweight") {
     tips.push(
       "Your BMI is in the underweight range — prioritize a calorie surplus even if your goal is body recomposition."
@@ -210,14 +315,24 @@ function buildRecommendations(
       "Your current activity level is low — even adding 20–30 minutes of daily walking will meaningfully improve your results."
     );
   }
+  if (input.sleepHours !== undefined && input.sleepHours < 6) {
+    tips.push(
+      "You're averaging under 6 hours of sleep — poor sleep blunts fat loss, muscle recovery, and hunger regulation. This is worth fixing before anything else."
+    );
+  }
+  if (input.stressLevel === "high") {
+    tips.push(
+      "You reported high stress — chronic stress raises cortisol, which can stall fat loss and disrupt recovery. Consider adding a daily 10-minute walk or breathing practice."
+    );
+  }
   tips.push(
     "Get an InBody scan to track real muscle and fat changes — the scale alone won't show the full picture."
   );
 
   return {
-    dailyCalories: Math.round(dailyCalories),
-    proteinGrams: Math.round(proteinPerKg * weightKg),
-    proteinPerKg,
+    dailyCalories: macros.calories,
+    proteinGrams: macros.proteinG,
+    proteinPerKg: macros.proteinPerKg,
     summary,
     suggestedProgram,
     tips,
@@ -243,6 +358,13 @@ export function runAssessment(input: AssessmentInput): AssessmentResult {
     bodyFatScore(bodyFatPercent, input.gender) * 0.4 +
     ACTIVITY_SCORE[input.activityLevel] * 0.3;
 
+  const macros = buildMacros(input.goal, input.gender, input.weightKg, tdee);
+  const hasMedicalFlag = !!(
+    input.medicalConditions &&
+    input.medicalConditions.length > 0 &&
+    !input.medicalConditions.every((c) => c.toLowerCase() === "none")
+  );
+
   return {
     bmi: round(bmi),
     bmiCategory: bmiCat,
@@ -251,8 +373,12 @@ export function runAssessment(input: AssessmentInput): AssessmentResult {
     bodyFatPercent: round(Math.max(0, bodyFatPercent)),
     bodyFatMethod,
     bodyFatCategory: bfCat,
+    bodyClassification: `${bmiCat} BMI · ${bfCat} Body Fat`,
     fitnessScore: Math.round(score),
     fitnessLabel: fitnessLabel(score),
-    recommendations: buildRecommendations(input, tdee, bmiCat, bfCat),
+    macros,
+    roadmap: buildRoadmap(input.goal, bmiCat),
+    hasMedicalFlag,
+    recommendations: buildRecommendations(input, macros, bmiCat, bfCat),
   };
 }

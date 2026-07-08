@@ -13,11 +13,12 @@ export default function AssessmentPage() {
               Free Tool
             </p>
             <h1 className="font-display text-4xl sm:text-5xl mb-4">
-              Body Assessment
+              AI Body Assessment
             </h1>
             <p className="text-muted max-w-lg mx-auto">
-              Get your BMI, BMR, estimated body fat, and a fitness score in
-              under a minute — plus a personalized nutrition target.
+              Answer a few questions about your body, goals, and lifestyle —
+              get your full metrics, a starter workout, a meal plan, and a
+              90-day roadmap, all in one shot.
             </p>
           </div>
           <AssessmentForm />
