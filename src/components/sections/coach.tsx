@@ -1,0 +1,58 @@
+import Image from "next/image";
+import { CheckCircle2 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+
+const credentials = [
+  "200+ clients coached to real results",
+  "InBody-certified body composition analysis",
+  "Specializes in fat loss, lean muscle & body recomposition",
+  "Runs I-BLITZ Fitness Club, Bangalore",
+];
+
+export function Coach() {
+  return (
+    <section className="border-t border-border px-6 py-24">
+      <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto md:mx-0">
+          <Image
+            src="/images/coach-profile.png"
+            alt="Coach Sahil Bansal"
+            fill
+            sizes="(max-width: 768px) 90vw, 400px"
+            className="object-cover"
+            priority
+          />
+        </div>
+        <div>
+          <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
+            Meet Your Coach
+          </p>
+          <h2 className="font-display text-4xl sm:text-5xl mb-4">
+            Sahil Bansal
+          </h2>
+          <p className="text-muted mb-6">
+            Founder of I-BLITZ Fitness Club and FitWid. Every program is
+            built on real InBody data — not guesswork — so you always know
+            exactly what&apos;s changing in your body and why.
+          </p>
+          <ul className="space-y-3 mb-8">
+            {credentials.map((c) => (
+              <li key={c} className="flex items-start gap-2.5 text-sm">
+                <CheckCircle2 size={18} className="text-crimson shrink-0 mt-0.5" />
+                <span className="text-foreground/90">{c}</span>
+              </li>
+            ))}
+          </ul>
+          <a
+            href="https://wa.me/917015552731"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({ variant: "primary", size: "lg" })}
+          >
+            Talk to Sahil
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}

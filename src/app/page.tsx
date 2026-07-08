@@ -2,6 +2,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/sections/hero";
 import { Features } from "@/components/sections/features";
+import { Coach } from "@/components/sections/coach";
 import { Programs } from "@/components/sections/programs";
 import { Transformations } from "@/components/sections/transformations";
 import { Testimonials } from "@/components/sections/testimonials";
@@ -15,6 +16,7 @@ export default function Home() {
       <main className="flex-1 flex flex-col">
         <Hero />
         <Features />
+        <Coach />
         <Programs />
         <Transformations />
         <Testimonials />
