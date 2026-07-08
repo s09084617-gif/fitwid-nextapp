@@ -52,13 +52,20 @@ export default function AdminExercisesPage() {
 
   function handleAdd() {
     if (!form.name.trim()) return;
+    const cue = form.cue.trim() || "No cue provided.";
     const exercise: Exercise = {
       id: `custom_${Date.now()}`,
       name: form.name.trim(),
       muscleGroup: form.muscleGroup,
       equipment: form.equipment,
       difficulty: form.difficulty,
-      cue: form.cue.trim() || "No cue provided.",
+      cue,
+      cues: [cue],
+      commonMistakes: [],
+      alternatives: [],
+      progressionEasier: null,
+      progressionHarder: null,
+      videoUrl: null,
     };
     setError(null);
     startTransition(async () => {

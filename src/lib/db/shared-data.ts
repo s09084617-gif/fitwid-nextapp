@@ -73,5 +73,11 @@ export async function getCustomExercises(): Promise<Exercise[]> {
     equipment: r.equipment,
     difficulty: r.difficulty,
     cue: r.cue ?? "No cue provided.",
+    cues: [r.cue ?? "No cue provided."],
+    commonMistakes: [],
+    alternatives: [],
+    progressionEasier: null,
+    progressionHarder: null,
+    videoUrl: null,
   })) as Exercise[];
 }

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -16,6 +16,13 @@ const actions = [
     label: "Generate Workout",
     desc: "Build a workout by goal, level & equipment",
     href: "/dashboard/workouts",
+    external: false,
+  },
+  {
+    icon: BookOpen,
+    label: "Exercise Library",
+    desc: "Form cues, mistakes, alternatives & progressions",
+    href: "/dashboard/exercises",
     external: false,
   },
   {
