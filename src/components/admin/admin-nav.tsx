@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
+  { href: "/dashboard/admin/clients", label: "Clients" },
   { href: "/dashboard/admin/users", label: "Users" },
   { href: "/dashboard/admin/programs", label: "Programs" },
   { href: "/dashboard/admin/exercises", label: "Exercises" },
@@ -16,7 +17,7 @@ export function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-1">
+    <nav className="flex flex-wrap gap-1.5">
       {TABS.map((tab) => {
         const active = pathname?.startsWith(tab.href);
         return (

@@ -379,3 +379,28 @@ export async function deletePersonalRecord(id: string): Promise<PersonalRecord[]
   await supabase.from("personal_records").delete().eq("user_id", userId).eq("id", id);
   return getPersonalRecords();
 }
+
+// --- Client Assignment (read-only for clients; coaches write via admin panel) ---
+
+export interface ClientAssignment {
+  assignedProgram: string | null;
+  coachNotes: string | null;
+  updatedAt: string | null;
+}
+
+export async function getMyAssignment(): Promise<ClientAssignment | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("client_assignments")
+    .select("assigned_program, coach_notes, updated_at")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    assignedProgram: data.assigned_program,
+    coachNotes: data.coach_notes,
+    updatedAt: data.updated_at,
+  };
+}
