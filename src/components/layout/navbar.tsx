@@ -1,0 +1,93 @@
+"use client";
+
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { cn } from "@/lib/utils";
+
+const links = [
+  { href: "#features", label: "Features" },
+  { href: "#programs", label: "Programs" },
+  { href: "#transformations", label: "Transformations" },
+  { href: "#testimonials", label: "Testimonials" },
+  { href: "#pricing", label: "Pricing" },
+  { href: "#faq", label: "FAQ" },
+];
+
+export function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
+      <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
+        <a href="#" className="font-display text-2xl tracking-wide shrink-0">
+          FIT<span className="text-crimson">WID</span>
+        </a>
+
+        <ul className="hidden md:flex items-center gap-8 text-sm text-muted">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a href={link.href} className="hover:text-foreground transition">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <div className="hidden md:flex items-center gap-4">
+          <ThemeToggle />
+          <a
+            href="https://wa.me/917015552731"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={buttonVariants({ variant: "primary", size: "sm" })}
+          >
+            Book a Call
+          </a>
+        </div>
+
+        <button
+          type="button"
+          className="md:hidden p-2 text-foreground"
+          aria-label="Toggle menu"
+          onClick={() => setOpen((v) => !v)}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </nav>
+
+      <div
+        className={cn(
+          "md:hidden overflow-hidden border-t border-border transition-[max-height] duration-300",
+          open ? "max-h-96" : "max-h-0"
+        )}
+      >
+        <ul className="flex flex-col px-6 py-4 gap-4 text-sm text-muted">
+          {links.map((link) => (
+            <li key={link.href}>
+              <a
+                href={link.href}
+                className="hover:text-foreground transition"
+                onClick={() => setOpen(false)}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+          <li className="flex items-center justify-between pt-2">
+            <ThemeToggle />
+            <a
+              href="https://wa.me/917015552731"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={buttonVariants({ variant: "primary", size: "sm" })}
+            >
+              Book a Call
+            </a>
+          </li>
+        </ul>
+      </div>
+    </header>
+  );
+}
