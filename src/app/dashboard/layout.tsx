@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminEmail } from "@/lib/admin";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Welcome } from "@/components/dashboard/welcome";
@@ -37,7 +38,7 @@ export default async function DashboardLayout({
           </div>
         </div>
 
-        <DashboardNav />
+        <DashboardNav isAdmin={isAdminEmail(user.email)} />
 
         {children}
       </div>

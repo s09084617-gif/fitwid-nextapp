@@ -3,6 +3,7 @@
 import type { AssessmentResult } from "@/lib/assessment";
 import type { WorkoutPlan } from "@/lib/workout-generator";
 import type { MealPlan } from "@/lib/meal-plan-generator";
+import type { Exercise } from "@/lib/workout-data";
 
 const LAST_ASSESSMENT_KEY = "fitwid:lastAssessment";
 const WEIGHT_LOG_KEY = "fitwid:weightLog";
@@ -11,6 +12,16 @@ const SAVED_MEAL_PLANS_KEY = "fitwid:savedMealPlans";
 const PROGRESS_PHOTOS_KEY = "fitwid:progressPhotos";
 const MEASUREMENTS_KEY = "fitwid:measurements";
 const WORKOUT_HISTORY_KEY = "fitwid:workoutHistory";
+const CUSTOM_PROGRAMS_KEY = "fitwid:customPrograms";
+const CUSTOM_EXERCISES_KEY = "fitwid:customExercises";
+
+export interface ProgramCard {
+  id: string;
+  title: string;
+  desc: string;
+  badge: string;
+  variant: "crimson" | "gold" | "success";
+}
 
 export interface WeightEntry {
   date: string; // ISO date, e.g. 2026-07-08
@@ -229,5 +240,63 @@ export function addWorkoutHistoryEntry(
 export function deleteWorkoutHistoryEntry(id: string) {
   const list = getWorkoutHistory().filter((w) => w.id !== id);
   safeSet(WORKOUT_HISTORY_KEY, list);
+  return list;
+}
+
+// --- Admin: Programs (overrides the homepage Programs section) ---
+
+export const DEFAULT_PROGRAMS: ProgramCard[] = [
+  {
+    id: "fat-loss",
+    title: "Fat Loss + Muscle Retention",
+    desc: "Structured deficit programming that protects lean mass while body fat drops.",
+    badge: "Program",
+    variant: "crimson",
+  },
+  {
+    id: "lean-muscle",
+    title: "Lean Muscle Building",
+    desc: "Progressive overload blocks designed around your recovery and InBody trends.",
+    badge: "Program",
+    variant: "gold",
+  },
+  {
+    id: "online-coaching",
+    title: "Online Coaching (FitWid)",
+    desc: "Remote check-ins, habit tracking, and diet plans — coached from anywhere.",
+    badge: "Online",
+    variant: "success",
+  },
+];
+
+export function getPrograms(): ProgramCard[] {
+  return safeGet<ProgramCard[]>(CUSTOM_PROGRAMS_KEY) ?? DEFAULT_PROGRAMS;
+}
+
+export function savePrograms(programs: ProgramCard[]) {
+  safeSet(CUSTOM_PROGRAMS_KEY, programs);
+  return programs;
+}
+
+export function resetPrograms() {
+  safeSet(CUSTOM_PROGRAMS_KEY, DEFAULT_PROGRAMS);
+  return DEFAULT_PROGRAMS;
+}
+
+// --- Admin: Custom Exercises (merged into the Workout Generator's pool) ---
+
+export function getCustomExercises(): Exercise[] {
+  return safeGet<Exercise[]>(CUSTOM_EXERCISES_KEY) ?? [];
+}
+
+export function addCustomExercise(exercise: Exercise) {
+  const list = [...getCustomExercises(), exercise];
+  safeSet(CUSTOM_EXERCISES_KEY, list);
+  return list;
+}
+
+export function deleteCustomExercise(id: string) {
+  const list = getCustomExercises().filter((e) => e.id !== id);
+  safeSet(CUSTOM_EXERCISES_KEY, list);
   return list;
 }

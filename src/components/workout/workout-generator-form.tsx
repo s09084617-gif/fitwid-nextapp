@@ -7,7 +7,7 @@ import { Select } from "@/components/ui/select";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { MultiToggleGroup } from "@/components/ui/multi-toggle-group";
 import { WorkoutPlanDisplay } from "@/components/workout/workout-plan-display";
-import { saveWorkout } from "@/lib/local-store";
+import { saveWorkout, getCustomExercises } from "@/lib/local-store";
 import {
   generateWorkout,
   type Goal,
@@ -52,7 +52,7 @@ export function WorkoutGeneratorForm() {
     }
     setError(null);
     setSaved(false);
-    setPlan(generateWorkout({ goal, experience, equipment, focus }));
+    setPlan(generateWorkout({ goal, experience, equipment, focus }, getCustomExercises()));
   }
 
   function handleSave() {

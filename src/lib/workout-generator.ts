@@ -76,12 +76,16 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-export function generateWorkout(filters: GeneratorFilters): WorkoutPlan {
+export function generateWorkout(
+  filters: GeneratorFilters,
+  customExercises: Exercise[] = []
+): WorkoutPlan {
   const { goal, experience, equipment, focus } = filters;
   const targetMuscles = FOCUS_MUSCLE_MAP[focus];
   const maxDifficulty = DIFFICULTY_RANK[experience];
 
-  const pool = EXERCISES.filter(
+  const allExercises = [...EXERCISES, ...customExercises];
+  const pool = allExercises.filter(
     (ex) =>
       targetMuscles.includes(ex.muscleGroup) &&
       equipment.includes(ex.equipment) &&

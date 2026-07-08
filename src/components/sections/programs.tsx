@@ -1,34 +1,18 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { BadgeProps } from "@/components/ui/badge";
-
-const programs: {
-  title: string;
-  desc: string;
-  badge: string;
-  variant: BadgeProps["variant"];
-}[] = [
-  {
-    title: "Fat Loss + Muscle Retention",
-    desc: "Structured deficit programming that protects lean mass while body fat drops.",
-    badge: "Program",
-    variant: "crimson",
-  },
-  {
-    title: "Lean Muscle Building",
-    desc: "Progressive overload blocks designed around your recovery and InBody trends.",
-    badge: "Program",
-    variant: "gold",
-  },
-  {
-    title: "Online Coaching (FitWid)",
-    desc: "Remote check-ins, habit tracking, and diet plans — coached from anywhere.",
-    badge: "Online",
-    variant: "success",
-  },
-];
+import { getPrograms, DEFAULT_PROGRAMS, type ProgramCard } from "@/lib/local-store";
 
 export function Programs() {
+  const [programs, setPrograms] = useState<ProgramCard[]>(DEFAULT_PROGRAMS);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount (admin-editable content)
+    setPrograms(getPrograms());
+  }, []);
+
   return (
     <section
       id="programs"
@@ -44,7 +28,7 @@ export function Programs() {
         </p>
         <div className="grid sm:grid-cols-3 gap-6">
           {programs.map((p) => (
-            <Card key={p.title}>
+            <Card key={p.id}>
               <Badge variant={p.variant} className="mb-3">
                 {p.badge}
               </Badge>
