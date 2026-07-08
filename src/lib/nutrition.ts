@@ -56,3 +56,24 @@ export function calculateNutritionTargets(input: NutritionInput): MacroTargets {
     proteinPerKg,
   };
 }
+
+/**
+ * Daily water intake estimate in liters: ~35ml per kg bodyweight, plus an
+ * extra 500-750ml for higher activity levels to cover sweat losses.
+ * A general guideline, not a medical recommendation — actual needs vary
+ * with climate, individual sweat rate, and health conditions.
+ */
+export function calculateWaterIntakeLiters(
+  weightKg: number,
+  activityLevel: ActivityLevel
+): number {
+  const base = weightKg * 0.035;
+  const ACTIVITY_BONUS_LITERS: Record<ActivityLevel, number> = {
+    sedentary: 0,
+    light: 0.25,
+    moderate: 0.5,
+    active: 0.65,
+    very_active: 0.75,
+  };
+  return Math.round((base + ACTIVITY_BONUS_LITERS[activityLevel]) * 10) / 10;
+}

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
-import { calculateNutritionTargets, type MacroTargets } from "@/lib/nutrition";
+import { calculateNutritionTargets, calculateWaterIntakeLiters, type MacroTargets } from "@/lib/nutrition";
 import type { Gender, ActivityLevel, Goal } from "@/lib/assessment";
 import type { DietTag } from "@/lib/indian-foods";
 
@@ -31,6 +31,7 @@ export function NutritionCalculator({
   const [goal, setGoal] = useState<Goal>("fat_loss");
   const [dietTag, setDietTag] = useState<DietTag>("veg");
   const [targets, setTargets] = useState<MacroTargets | null>(null);
+  const [waterLiters, setWaterLiters] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   function handleCalculate() {
@@ -51,6 +52,7 @@ export function NutritionCalculator({
       goal,
     });
     setTargets(result);
+    setWaterLiters(calculateWaterIntakeLiters(weightNum, activityLevel));
     onCalculated(result, dietTag);
   }
 
@@ -114,7 +116,7 @@ export function NutritionCalculator({
       </div>
 
       {targets && (
-        <div className="grid sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-border">
+        <div className="grid sm:grid-cols-5 gap-4 mt-6 pt-6 border-t border-border">
           <div>
             <CardTitle className="text-gold">{targets.calories}</CardTitle>
             <CardDescription>kcal / day</CardDescription>
@@ -130,6 +132,10 @@ export function NutritionCalculator({
           <div>
             <CardTitle>{targets.fatG}g</CardTitle>
             <CardDescription>Fat</CardDescription>
+          </div>
+          <div>
+            <CardTitle className="text-success">{waterLiters}L</CardTitle>
+            <CardDescription>Water / day</CardDescription>
           </div>
         </div>
       )}

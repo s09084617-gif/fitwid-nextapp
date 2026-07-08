@@ -18,6 +18,13 @@ const MEAL_CATEGORY_MIX: Record<MealSlot, FoodItem["category"][]> = {
   Dinner: ["breads", "legumes", "protein", "vegetables"],
 };
 
+export const MEAL_TIMING: Record<MealSlot, string> = {
+  Breakfast: "7:00 – 8:00 AM",
+  Lunch: "1:00 – 2:00 PM",
+  Snack: "4:30 – 5:30 PM",
+  Dinner: "7:30 – 8:30 PM",
+};
+
 export interface MealPlanItem {
   slot: MealSlot;
   foods: FoodItem[];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { NutritionCalculator } from "@/components/nutrition/nutrition-calculator";
 import { MealPlanDisplay } from "@/components/nutrition/meal-plan-display";
+import { GroceryList } from "@/components/nutrition/grocery-list";
 import { FoodDatabase } from "@/components/nutrition/food-database";
 import { SavedMealPlans } from "@/components/nutrition/saved-meal-plans";
 import { Button } from "@/components/ui/button";
@@ -56,12 +57,15 @@ export default function DashboardNutritionPage() {
       )}
 
       {plan && (
-        <MealPlanDisplay
-          plan={plan}
-          onSave={handleSave}
-          onRegenerate={handleGeneratePlan}
-          saved={saved}
-        />
+        <>
+          <MealPlanDisplay
+            plan={plan}
+            onSave={handleSave}
+            onRegenerate={handleGeneratePlan}
+            saved={saved}
+          />
+          <GroceryList plan={plan} />
+        </>
       )}
 
       <SavedMealPlans />

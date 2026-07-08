@@ -1,7 +1,8 @@
+import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { MealPlan } from "@/lib/meal-plan-generator";
+import { MEAL_TIMING, type MealPlan } from "@/lib/meal-plan-generator";
 
 export function MealPlanDisplay({
   plan,
@@ -54,7 +55,12 @@ export function MealPlanDisplay({
         {plan.meals.map((meal) => (
           <div key={meal.slot} className="rounded-md border border-border p-4">
             <div className="flex items-center justify-between mb-2">
-              <p className="font-semibold text-sm">{meal.slot}</p>
+              <div>
+                <p className="font-semibold text-sm">{meal.slot}</p>
+                <p className="text-[11px] text-muted flex items-center gap-1">
+                  <Clock size={10} /> {MEAL_TIMING[meal.slot]}
+                </p>
+              </div>
               <p className="text-xs text-muted">{meal.calories} kcal</p>
             </div>
             {meal.foods.length === 0 ? (
