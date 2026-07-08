@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getPrograms, DEFAULT_PROGRAMS, type ProgramCard } from "@/lib/local-store";
+import { getPrograms, DEFAULT_PROGRAMS, type ProgramCard } from "@/lib/db/shared-data";
 
 export function Programs() {
   const [programs, setPrograms] = useState<ProgramCard[]>(DEFAULT_PROGRAMS);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount (admin-editable content)
-    setPrograms(getPrograms());
+    getPrograms().then(setPrograms);
   }, []);
 
   return (

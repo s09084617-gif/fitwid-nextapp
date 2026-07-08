@@ -1,37 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Trash2, Plus, RotateCcw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { getPrograms, type ProgramCard } from "@/lib/db/shared-data";
 import {
-  getPrograms,
-  savePrograms,
-  resetPrograms,
-  type ProgramCard,
-} from "@/lib/local-store";
+  upsertProgram,
+  deleteProgram,
+  resetProgramsToDefaults,
+} from "./actions";
 
 const VARIANTS: ProgramCard["variant"][] = ["crimson", "gold", "success"];
 
 export default function AdminProgramsPage() {
   const [programs, setPrograms] = useState<ProgramCard[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount
-    setPrograms(getPrograms());
-    setMounted(true);
+    getPrograms().then((p) => {
+      setPrograms(p);
+      setMounted(true);
+    });
   }, []);
+
+  function refresh() {
+    getPrograms().then(setPrograms);
+  }
 
   function updateField(id: string, field: keyof ProgramCard, value: string) {
     const updated = programs.map((p) =>
       p.id === id ? { ...p, [field]: value } : p
     );
     setPrograms(updated);
-    savePrograms(updated);
+  }
+
+  function handleSave(program: ProgramCard, index: number) {
+    setError(null);
+    startTransition(async () => {
+      try {
+        await upsertProgram(program, index + 1);
+        refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to save");
+      }
+    });
   }
 
   function handleAdd() {
@@ -42,19 +60,39 @@ export default function AdminProgramsPage() {
       badge: "Program",
       variant: "crimson",
     };
-    const updated = [...programs, newProgram];
-    setPrograms(updated);
-    savePrograms(updated);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await upsertProgram(newProgram, programs.length + 1);
+        refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to add");
+      }
+    });
   }
 
   function handleDelete(id: string) {
-    const updated = programs.filter((p) => p.id !== id);
-    setPrograms(updated);
-    savePrograms(updated);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await deleteProgram(id);
+        refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to delete");
+      }
+    });
   }
 
   function handleReset() {
-    setPrograms(resetPrograms());
+    setError(null);
+    startTransition(async () => {
+      try {
+        await resetProgramsToDefaults();
+        refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to reset");
+      }
+    });
   }
 
   if (!mounted) {
@@ -66,23 +104,23 @@ export default function AdminProgramsPage() {
       <div className="flex items-center justify-between mb-4">
         <Badge variant="crimson">Homepage Programs</Badge>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleReset}>
+          <Button variant="outline" size="sm" onClick={handleReset} disabled={isPending}>
             <RotateCcw size={14} /> Reset to Defaults
           </Button>
-          <Button size="sm" onClick={handleAdd}>
+          <Button size="sm" onClick={handleAdd} disabled={isPending}>
             <Plus size={14} /> Add Program
           </Button>
         </div>
       </div>
-      <p className="text-xs text-muted mb-6">
+      <p className="text-xs text-muted mb-2">
         Edits here update the &ldquo;Coaching Programs&rdquo; section on the
-        homepage — but only in this browser, since there&apos;s no shared
-        database yet. To make changes visible to all visitors, this would
-        need a real backend.
+        homepage for every visitor — saved to the shared database, not just
+        this browser.
       </p>
+      {error && <p className="text-sm text-danger mb-4">{error}</p>}
 
       <div className="space-y-4">
-        {programs.map((p) => (
+        {programs.map((p, i) => (
           <div key={p.id} className="rounded-md border border-border p-4">
             <div className="grid sm:grid-cols-2 gap-3 mb-3">
               <Input
@@ -119,14 +157,25 @@ export default function AdminProgramsPage() {
                   ))}
                 </Select>
               </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(p.id)}
-                className="text-muted hover:text-danger transition p-2"
-                aria-label="Delete program"
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleSave(p, i)}
+                  disabled={isPending}
+                >
+                  Save
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(p.id)}
+                  className="text-muted hover:text-danger transition p-2"
+                  aria-label="Delete program"
+                  disabled={isPending}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
           </div>
         ))}

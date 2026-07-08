@@ -15,8 +15,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getWeightLog, addWeightEntry, deleteWeightEntry, todayISO } from "@/lib/local-store";
-import type { WeightEntry } from "@/lib/local-store";
+import { getWeightLog, addWeightEntry, deleteWeightEntry, todayISO } from "@/lib/db/user-data";
+import type { WeightEntry } from "@/lib/db/user-data";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", {
@@ -31,20 +31,21 @@ export function WeightHistory() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount
-    setLog(getWeightLog());
-    setMounted(true);
+    getWeightLog().then((l) => {
+      setLog(l);
+      setMounted(true);
+    });
   }, []);
 
-  function handleLog() {
+  async function handleLog() {
     const kg = Number(quickWeight);
     if (!kg || kg < 30 || kg > 300) return;
-    setLog(addWeightEntry(kg));
+    setLog(await addWeightEntry(kg));
     setQuickWeight("");
   }
 
-  function handleDelete(date: string) {
-    setLog(deleteWeightEntry(date));
+  async function handleDelete(date: string) {
+    setLog(await deleteWeightEntry(date));
   }
 
   if (!mounted) {

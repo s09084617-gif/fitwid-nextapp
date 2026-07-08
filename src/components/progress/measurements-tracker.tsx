@@ -11,7 +11,7 @@ import {
   addMeasurement,
   deleteMeasurement,
   type MeasurementEntry,
-} from "@/lib/local-store";
+} from "@/lib/db/user-data";
 
 const FIELDS: { key: keyof MeasurementEntry; label: string }[] = [
   { key: "waistCm", label: "Waist (cm)" },
@@ -34,25 +34,26 @@ export function MeasurementsTracker() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount
-    setEntries(getMeasurements());
-    setMounted(true);
+    getMeasurements().then((list) => {
+      setEntries(list);
+      setMounted(true);
+    });
   }, []);
 
-  function handleSave() {
+  async function handleSave() {
     const parsed: Record<string, number | undefined> = {};
     for (const f of FIELDS) {
       const raw = form[f.key];
       parsed[f.key] = raw ? Number(raw) : undefined;
     }
     if (Object.values(parsed).every((v) => v === undefined)) return;
-    const updated = addMeasurement(parsed);
+    const updated = await addMeasurement(parsed);
     setEntries(updated);
     setForm({});
   }
 
-  function handleDelete(id: string) {
-    setEntries(deleteMeasurement(id));
+  async function handleDelete(id: string) {
+    setEntries(await deleteMeasurement(id));
   }
 
   if (!mounted) {

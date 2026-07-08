@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Trash2, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getSavedMealPlans, deleteMealPlan } from "@/lib/local-store";
+import { getSavedMealPlans, deleteMealPlan } from "@/lib/db/user-data";
 import type { MealPlan } from "@/lib/meal-plan-generator";
 import { cn } from "@/lib/utils";
 
@@ -15,18 +15,19 @@ export function SavedMealPlans() {
 
   useEffect(() => {
     function refresh() {
-      setPlans(getSavedMealPlans());
+      getSavedMealPlans().then((list) => {
+        setPlans(list);
+        setMounted(true);
+      });
     }
     refresh();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard, same pattern as other localStorage-backed lists
-    setMounted(true);
     window.addEventListener("fitwid:mealplans-updated", refresh);
     return () =>
       window.removeEventListener("fitwid:mealplans-updated", refresh);
   }, []);
 
   function handleDelete(id: string) {
-    setPlans(deleteMealPlan(id));
+    deleteMealPlan(id).then(setPlans);
   }
 
   if (!mounted) return null;

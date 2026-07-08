@@ -11,7 +11,7 @@ import {
   addWorkoutHistoryEntry,
   deleteWorkoutHistoryEntry,
   type WorkoutHistoryEntry,
-} from "@/lib/local-store";
+} from "@/lib/db/user-data";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", {
@@ -28,14 +28,15 @@ export function WorkoutHistory() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount
-    setHistory(getWorkoutHistory());
-    setMounted(true);
+    getWorkoutHistory().then((list) => {
+      setHistory(list);
+      setMounted(true);
+    });
   }, []);
 
-  function handleLog() {
+  async function handleLog() {
     if (!title.trim()) return;
-    const updated = addWorkoutHistoryEntry({
+    const updated = await addWorkoutHistoryEntry({
       title: title.trim(),
       durationMinutes: duration ? Number(duration) : undefined,
     });
@@ -44,8 +45,8 @@ export function WorkoutHistory() {
     setDuration("");
   }
 
-  function handleDelete(id: string) {
-    setHistory(deleteWorkoutHistoryEntry(id));
+  async function handleDelete(id: string) {
+    setHistory(await deleteWorkoutHistoryEntry(id));
   }
 
   if (!mounted) {

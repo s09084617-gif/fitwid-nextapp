@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { MultiToggleGroup } from "@/components/ui/multi-toggle-group";
 import { WorkoutPlanDisplay } from "@/components/workout/workout-plan-display";
-import { saveWorkout, getCustomExercises } from "@/lib/local-store";
+import { saveWorkout } from "@/lib/db/user-data";
+import { getCustomExercises } from "@/lib/db/shared-data";
 import {
   generateWorkout,
   type Goal,
@@ -44,6 +45,13 @@ export function WorkoutGeneratorForm() {
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [customExercises, setCustomExercises] = useState<
+    Awaited<ReturnType<typeof getCustomExercises>>
+  >([]);
+
+  useEffect(() => {
+    getCustomExercises().then(setCustomExercises);
+  }, []);
 
   function handleGenerate() {
     if (equipment.length === 0) {
@@ -52,12 +60,12 @@ export function WorkoutGeneratorForm() {
     }
     setError(null);
     setSaved(false);
-    setPlan(generateWorkout({ goal, experience, equipment, focus }, getCustomExercises()));
+    setPlan(generateWorkout({ goal, experience, equipment, focus }, customExercises));
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!plan) return;
-    saveWorkout(plan);
+    await saveWorkout(plan);
     setSaved(true);
     // notify saved-workouts list (same tab) to refresh
     window.dispatchEvent(new CustomEvent("fitwid:workouts-updated"));

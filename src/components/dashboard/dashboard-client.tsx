@@ -20,7 +20,7 @@ import {
   addWeightEntry,
   type StoredAssessment,
   type WeightEntry,
-} from "@/lib/local-store";
+} from "@/lib/db/user-data";
 
 function sampleWeightLog(startWeight = 82): WeightEntry[] {
   const entries: WeightEntry[] = [];
@@ -50,16 +50,19 @@ export function DashboardClient() {
   const [quickWeight, setQuickWeight] = useState("");
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage (external system) on mount
-    setAssessment(getLastAssessment());
-    setWeightLog(getWeightLog());
-    setMounted(true);
+    Promise.all([getLastAssessment(), getWeightLog()]).then(
+      ([assessmentResult, weightLogResult]) => {
+        setAssessment(assessmentResult);
+        setWeightLog(weightLogResult);
+        setMounted(true);
+      }
+    );
   }, []);
 
-  function handleLogWeight() {
+  async function handleLogWeight() {
     const kg = Number(quickWeight);
     if (!kg || kg < 30 || kg > 300) return;
-    const updated = addWeightEntry(kg);
+    const updated = await addWeightEntry(kg);
     setWeightLog(updated);
     setQuickWeight("");
   }

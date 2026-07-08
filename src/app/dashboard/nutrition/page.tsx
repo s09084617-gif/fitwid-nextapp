@@ -7,7 +7,7 @@ import { FoodDatabase } from "@/components/nutrition/food-database";
 import { SavedMealPlans } from "@/components/nutrition/saved-meal-plans";
 import { Button } from "@/components/ui/button";
 import { generateMealPlan, type MealPlan } from "@/lib/meal-plan-generator";
-import { saveMealPlan } from "@/lib/local-store";
+import { saveMealPlan } from "@/lib/db/user-data";
 import type { MacroTargets } from "@/lib/nutrition";
 import type { DietTag } from "@/lib/indian-foods";
 
@@ -30,9 +30,9 @@ export default function DashboardNutritionPage() {
     setSaved(false);
   }
 
-  function handleSave() {
+  async function handleSave() {
     if (!plan) return;
-    saveMealPlan(plan);
+    await saveMealPlan(plan);
     setSaved(true);
     window.dispatchEvent(new CustomEvent("fitwid:mealplans-updated"));
   }

@@ -15,7 +15,7 @@ import {
   type Goal,
   type ActivityLevel,
 } from "@/lib/assessment";
-import { saveLastAssessment } from "@/lib/local-store";
+import { saveLastAssessment } from "@/lib/db/user-data";
 
 const defaultForm = {
   gender: "male" as Gender,

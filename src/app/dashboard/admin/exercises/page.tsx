@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,11 +14,8 @@ import {
   type Difficulty,
   type Exercise,
 } from "@/lib/workout-data";
-import {
-  getCustomExercises,
-  addCustomExercise,
-  deleteCustomExercise,
-} from "@/lib/local-store";
+import { getCustomExercises } from "@/lib/db/shared-data";
+import { addCustomExerciseAction, deleteCustomExerciseAction } from "./actions";
 
 const MUSCLE_GROUPS: MuscleGroup[] = [
   "chest", "back", "shoulders", "biceps", "triceps",
@@ -32,6 +29,8 @@ const DIFFICULTIES: Difficulty[] = ["beginner", "intermediate", "advanced"];
 export default function AdminExercisesPage() {
   const [custom, setCustom] = useState<Exercise[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "",
     muscleGroup: "chest" as MuscleGroup,
@@ -41,10 +40,15 @@ export default function AdminExercisesPage() {
   });
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing from localStorage on mount
-    setCustom(getCustomExercises());
-    setMounted(true);
+    getCustomExercises().then((list) => {
+      setCustom(list);
+      setMounted(true);
+    });
   }, []);
+
+  function refresh() {
+    getCustomExercises().then(setCustom);
+  }
 
   function handleAdd() {
     if (!form.name.trim()) return;
@@ -56,12 +60,28 @@ export default function AdminExercisesPage() {
       difficulty: form.difficulty,
       cue: form.cue.trim() || "No cue provided.",
     };
-    setCustom(addCustomExercise(exercise));
-    setForm({ ...form, name: "", cue: "" });
+    setError(null);
+    startTransition(async () => {
+      try {
+        await addCustomExerciseAction(exercise);
+        refresh();
+        setForm({ ...form, name: "", cue: "" });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to add");
+      }
+    });
   }
 
   function handleDelete(id: string) {
-    setCustom(deleteCustomExercise(id));
+    setError(null);
+    startTransition(async () => {
+      try {
+        await deleteCustomExerciseAction(id);
+        refresh();
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "Failed to delete");
+      }
+    });
   }
 
   if (!mounted) {
@@ -75,10 +95,11 @@ export default function AdminExercisesPage() {
           Add Custom Exercise
         </Badge>
         <p className="text-xs text-muted mb-4">
-          Custom exercises are merged into the Workout Generator&apos;s pool
-          in this browser — they show up alongside the built-in{" "}
-          {EXERCISES.length} exercises when generating workouts.
+          Custom exercises are saved to the shared database and merged into
+          the Workout Generator&apos;s pool for every user, alongside the
+          built-in {EXERCISES.length} exercises.
         </p>
+        {error && <p className="text-sm text-danger mb-4">{error}</p>}
         <div className="grid sm:grid-cols-2 gap-4 mb-4">
           <Input
             label="Exercise Name"
@@ -134,7 +155,9 @@ export default function AdminExercisesPage() {
             ))}
           </Select>
         </div>
-        <Button onClick={handleAdd}>Add Exercise</Button>
+        <Button onClick={handleAdd} disabled={isPending}>
+          Add Exercise
+        </Button>
       </Card>
 
       <Card>
@@ -165,6 +188,7 @@ export default function AdminExercisesPage() {
                   onClick={() => handleDelete(ex.id)}
                   className="text-muted hover:text-danger transition p-1"
                   aria-label="Delete exercise"
+                  disabled={isPending}
                 >
                   <Trash2 size={14} />
                 </button>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Trash2, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getSavedWorkouts, deleteWorkout } from "@/lib/local-store";
+import { getSavedWorkouts, deleteWorkout } from "@/lib/db/user-data";
 import type { WorkoutPlan } from "@/lib/workout-generator";
 import { cn } from "@/lib/utils";
 
@@ -15,17 +15,18 @@ export function SavedWorkouts() {
 
   useEffect(() => {
     function refresh() {
-      setWorkouts(getSavedWorkouts());
+      getSavedWorkouts().then((list) => {
+        setWorkouts(list);
+        setMounted(true);
+      });
     }
     refresh();
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration guard, same pattern as ThemeToggle/DashboardClient
-    setMounted(true);
     window.addEventListener("fitwid:workouts-updated", refresh);
     return () => window.removeEventListener("fitwid:workouts-updated", refresh);
   }, []);
 
   function handleDelete(id: string) {
-    setWorkouts(deleteWorkout(id));
+    deleteWorkout(id).then(setWorkouts);
   }
 
   if (!mounted) return null;
