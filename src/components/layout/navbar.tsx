@@ -8,9 +8,6 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/assessment", label: "Assessment" },
-  { href: "/workout-generator", label: "Workouts" },
-  { href: "/nutrition", label: "Nutrition" },
-  { href: "/progress", label: "Progress" },
   { href: "#features", label: "Features" },
   { href: "#programs", label: "Programs" },
   { href: "#transformations", label: "Transformations" },
