@@ -19,7 +19,7 @@ export function DashboardNav({ isAdmin = false }: { isAdmin?: boolean }) {
     : TABS;
 
   return (
-    <nav className="flex gap-1 overflow-x-auto -mx-1 px-1 pb-1">
+    <nav className="flex flex-wrap gap-1.5">
       {tabs.map((tab) => {
         const active =
           tab.href === "/dashboard"
