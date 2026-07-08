@@ -1,6 +1,6 @@
 import { EXERCISES, type Exercise, type Equipment, type Difficulty, type MuscleGroup } from "@/lib/workout-data";
 
-export type Goal = "fat_loss" | "muscle_gain" | "strength" | "endurance";
+export type Goal = "fat_loss" | "muscle_gain" | "strength" | "endurance" | "athletic_performance";
 export type Focus =
   | "full_body"
   | "upper_body"
@@ -59,7 +59,11 @@ const GOAL_SCHEME: Record<
   muscle_gain: { sets: 4, reps: "8-12", restSeconds: 75, label: "Muscle Gain (hypertrophy)" },
   strength: { sets: 5, reps: "3-6", restSeconds: 150, label: "Strength (heavy, low rep)" },
   endurance: { sets: 3, reps: "20-25", restSeconds: 25, label: "Endurance (high rep)" },
+  athletic_performance: { sets: 4, reps: "5-8", restSeconds: 90, label: "Athletic Performance (power & explosiveness)" },
 };
+
+/** Explosive/plyometric exercises prioritized when the goal is athletic performance. */
+const ATHLETIC_PRIORITY_IDS = ["box-jump", "kb-swing-cardio", "kb-swing", "sprint", "burpee", "jump-rope"];
 
 const EXERCISE_COUNT_BY_EXPERIENCE: Record<Difficulty, number> = {
   beginner: 5,
@@ -112,6 +116,23 @@ export function generateWorkout(
   const remaining = shuffle(pool.filter((ex) => !selected.includes(ex)));
   while (selected.length < targetCount && remaining.length > 0) {
     selected.push(remaining.shift()!);
+  }
+
+  // For athletic performance, swap in an explosive/plyometric movement if
+  // one is available in the equipment/difficulty pool and not already picked.
+  if (goal === "athletic_performance" && selected.length > 0) {
+    const alreadyHasExplosive = selected.some((ex) => ATHLETIC_PRIORITY_IDS.includes(ex.id));
+    if (!alreadyHasExplosive) {
+      const explosiveOption = allExercises.find(
+        (ex) =>
+          ATHLETIC_PRIORITY_IDS.includes(ex.id) &&
+          equipment.includes(ex.equipment) &&
+          DIFFICULTY_RANK[ex.difficulty] <= maxDifficulty
+      );
+      if (explosiveOption) {
+        selected[selected.length - 1] = explosiveOption;
+      }
+    }
   }
 
   const scheme = GOAL_SCHEME[goal];

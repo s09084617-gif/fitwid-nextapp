@@ -26,6 +26,9 @@ const EQUIPMENT_OPTIONS: { value: Equipment; label: string }[] = [
   { value: "kettlebell", label: "Kettlebell" },
 ];
 
+const HOME_EQUIPMENT: Equipment[] = ["bodyweight", "dumbbell", "bands"];
+const GYM_EQUIPMENT: Equipment[] = ["bodyweight", "dumbbell", "barbell", "machine", "bands", "kettlebell"];
+
 const FOCUS_OPTIONS: { value: Focus; label: string }[] = [
   { value: "full_body", label: "Full Body" },
   { value: "upper_body", label: "Upper Body" },
@@ -83,6 +86,7 @@ export function WorkoutGeneratorForm() {
               { value: "fat_loss", label: "Fat Loss" },
               { value: "muscle_gain", label: "Muscle Gain" },
               { value: "strength", label: "Strength" },
+              { value: "athletic_performance", label: "Athletic Performance" },
               { value: "endurance", label: "Endurance" },
             ]}
           />
@@ -97,6 +101,31 @@ export function WorkoutGeneratorForm() {
               { value: "advanced", label: "Advanced" },
             ]}
           />
+
+          <div className="flex flex-col gap-1.5 w-full">
+            <span className="text-sm font-medium text-foreground">
+              Where are you training?
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setEquipment(HOME_EQUIPMENT)}
+                className="rounded-md border border-border bg-surface px-3 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:border-crimson/50 transition"
+              >
+                🏠 Home
+              </button>
+              <button
+                type="button"
+                onClick={() => setEquipment(GYM_EQUIPMENT)}
+                className="rounded-md border border-border bg-surface px-3 py-2.5 text-sm font-medium text-muted hover:text-foreground hover:border-crimson/50 transition"
+              >
+                🏋️ Full Gym
+              </button>
+            </div>
+            <p className="text-[11px] text-muted">
+              Quick presets — fine-tune the exact equipment below.
+            </p>
+          </div>
 
           <MultiToggleGroup
             label="Available Equipment"
