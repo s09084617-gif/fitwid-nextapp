@@ -15,6 +15,7 @@ import {
   type Goal,
   type ActivityLevel,
 } from "@/lib/assessment";
+import { saveLastAssessment } from "@/lib/local-store";
 
 const defaultForm = {
   gender: "male" as Gender,
@@ -78,7 +79,9 @@ export function AssessmentForm() {
       hipCm: form.hipCm ? Number(form.hipCm) : undefined,
     };
 
-    setResult(runAssessment(input));
+    const calculated = runAssessment(input);
+    saveLastAssessment(calculated, weightKg);
+    setResult(calculated);
   }
 
   if (result) {

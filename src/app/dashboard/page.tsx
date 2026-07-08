@@ -3,7 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Welcome } from "@/components/dashboard/welcome";
+import { DashboardClient } from "@/components/dashboard/dashboard-client";
+import { CaloriesCard } from "@/components/dashboard/calories-card";
+import { WorkoutSummary } from "@/components/dashboard/workout-summary";
+import { QuickActions } from "@/components/dashboard/quick-actions";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -24,18 +28,13 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen px-6 py-10">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <p className="text-gold tracking-[0.2em] text-xs font-semibold uppercase mb-1">
-              FitWid Dashboard
-            </p>
-            <h1 className="font-display text-3xl">Welcome, {name}</h1>
-          </div>
+      <div className="max-w-5xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <Welcome name={name} />
           <SignOutButton />
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-6 mb-10">
+        <div className="grid sm:grid-cols-2 gap-6">
           <Card>
             <Badge variant="crimson" className="mb-3">
               Account
@@ -53,39 +52,20 @@ export default async function DashboardPage() {
             <CardTitle>Active Client</CardTitle>
             <CardDescription>No program assigned yet.</CardDescription>
           </Card>
-          <Card>
-            <Badge variant="success" className="mb-3">
-              Next Step
-            </Badge>
-            <CardTitle>Book InBody Scan</CardTitle>
-            <CardDescription>
-              Get your baseline scan to start programming.
-            </CardDescription>
-          </Card>
         </div>
 
-        <Card className="mb-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            <Badge variant="crimson" className="mb-2">
-              Free Tool
-            </Badge>
-            <CardTitle>Haven&apos;t done your Body Assessment yet?</CardTitle>
-            <CardDescription>
-              Get your BMI, BMR, body fat estimate, and a personalized
-              nutrition target in under a minute.
-            </CardDescription>
-          </div>
-          <a
-            href="/assessment"
-            className={buttonVariants({ variant: "primary", size: "md" })}
-          >
-            Take Assessment
-          </a>
-        </Card>
+        <DashboardClient />
 
-        <p className="text-sm text-muted">
-          This is a placeholder dashboard. Habit tracking, diet plans, and
-          booking will be added in later phases.
+        <div className="grid sm:grid-cols-2 gap-6">
+          <CaloriesCard />
+          <WorkoutSummary />
+        </div>
+
+        <QuickActions />
+
+        <p className="text-xs text-muted text-center pt-2">
+          Weight tracking is saved locally in your browser for now. Full
+          server-side sync is planned for a later phase.
         </p>
       </div>
     </main>
