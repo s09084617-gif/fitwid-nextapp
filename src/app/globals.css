@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Brand */
+  --crimson: #c8102e;
+  --crimson-hover: #e0132f;
+  --gold: #c9a84c;
+  --gold-hover: #dbbd68;
+
+  /* Light theme surface */
+  --background: #ffffff;
+  --surface: #f5f5f5;
+  --surface-2: #ececec;
+  --foreground: #0a0a0a;
+  --muted: #6b6b6b;
+  --border: #e0e0e0;
+
+  /* Status */
+  --success: #1a9c5a;
+  --warning: #d99a1b;
+  --danger: #c8102e;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --surface: #141414;
+  --surface-2: #1c1c1c;
+  --foreground: #ffffff;
+  --muted: #9a9a9a;
+  --border: #262626;
+
+  --success: #2fbf71;
+  --warning: #e0ac2c;
+  --danger: #e0132f;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+
+  --color-crimson: var(--crimson);
+  --color-crimson-hover: var(--crimson-hover);
+  --color-gold: var(--gold);
+  --color-gold-hover: var(--gold-hover);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
