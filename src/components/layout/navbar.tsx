@@ -36,8 +36,20 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
           <ThemeToggle />
+          <a
+            href="/login"
+            className="text-sm text-muted hover:text-foreground transition px-2"
+          >
+            Log In
+          </a>
+          <a
+            href="/signup"
+            className={buttonVariants({ variant: "gold", size: "sm" })}
+          >
+            Sign Up
+          </a>
           <a
             href="https://wa.me/917015552731"
             target="_blank"
@@ -79,10 +91,26 @@ export function Navbar() {
           <li className="flex items-center justify-between pt-2">
             <ThemeToggle />
             <a
+              href="/login"
+              className="text-sm text-muted hover:text-foreground transition"
+              onClick={() => setOpen(false)}
+            >
+              Log In
+            </a>
+          </li>
+          <li className="flex flex-col gap-3 pt-2">
+            <a
+              href="/signup"
+              className={buttonVariants({ variant: "gold", size: "sm", className: "w-full" })}
+              onClick={() => setOpen(false)}
+            >
+              Sign Up
+            </a>
+            <a
               href="https://wa.me/917015552731"
               target="_blank"
               rel="noopener noreferrer"
-              className={buttonVariants({ variant: "primary", size: "sm" })}
+              className={buttonVariants({ variant: "primary", size: "sm", className: "w-full" })}
             >
               Book a Call
             </a>
