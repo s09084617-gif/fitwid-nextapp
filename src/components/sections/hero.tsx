@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { buttonVariants } from "@/components/ui/button";
 
 const stats: [string, string][] = [
@@ -15,6 +16,16 @@ export function Hero() {
         <p className="relative text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-4">
           I-BLITZ Fitness Club × FitWid
         </p>
+        <div className="relative h-40 w-40 sm:h-56 sm:w-56 mb-2">
+          <Image
+            src="/images/fitwid-logo.jpg"
+            alt="FitWid logo"
+            fill
+            sizes="224px"
+            className="object-contain"
+            priority
+          />
+        </div>
         <h1 className="relative font-display text-6xl sm:text-8xl tracking-wide leading-none">
           FIT<span className="text-crimson">WID</span>
         </h1>
