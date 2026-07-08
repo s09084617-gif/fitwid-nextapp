@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -16,6 +16,13 @@ const actions = [
     label: "Generate Workout",
     desc: "Build a workout by goal, level & equipment",
     href: "/workout-generator",
+    external: false,
+  },
+  {
+    icon: Utensils,
+    label: "Plan Nutrition",
+    desc: "Calculate macros & get an Indian meal plan",
+    href: "/nutrition",
     external: false,
   },
   {

@@ -2,10 +2,12 @@
 
 import type { AssessmentResult } from "@/lib/assessment";
 import type { WorkoutPlan } from "@/lib/workout-generator";
+import type { MealPlan } from "@/lib/meal-plan-generator";
 
 const LAST_ASSESSMENT_KEY = "fitwid:lastAssessment";
 const WEIGHT_LOG_KEY = "fitwid:weightLog";
 const SAVED_WORKOUTS_KEY = "fitwid:savedWorkouts";
+const SAVED_MEAL_PLANS_KEY = "fitwid:savedMealPlans";
 
 export interface WeightEntry {
   date: string; // ISO date, e.g. 2026-07-08
@@ -80,5 +82,22 @@ export function saveWorkout(plan: WorkoutPlan) {
 export function deleteWorkout(id: string) {
   const list = getSavedWorkouts().filter((w) => w.id !== id);
   safeSet(SAVED_WORKOUTS_KEY, list);
+  return list;
+}
+
+export function getSavedMealPlans(): MealPlan[] {
+  return safeGet<MealPlan[]>(SAVED_MEAL_PLANS_KEY) ?? [];
+}
+
+export function saveMealPlan(plan: MealPlan) {
+  const list = getSavedMealPlans();
+  list.unshift(plan);
+  safeSet(SAVED_MEAL_PLANS_KEY, list.slice(0, 50));
+  return list;
+}
+
+export function deleteMealPlan(id: string) {
+  const list = getSavedMealPlans().filter((p) => p.id !== id);
+  safeSet(SAVED_MEAL_PLANS_KEY, list);
   return list;
 }
