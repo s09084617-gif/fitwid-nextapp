@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -62,6 +63,25 @@ export default async function DashboardPage() {
             </CardDescription>
           </Card>
         </div>
+
+        <Card className="mb-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <Badge variant="crimson" className="mb-2">
+              Free Tool
+            </Badge>
+            <CardTitle>Haven&apos;t done your Body Assessment yet?</CardTitle>
+            <CardDescription>
+              Get your BMI, BMR, body fat estimate, and a personalized
+              nutrition target in under a minute.
+            </CardDescription>
+          </div>
+          <a
+            href="/assessment"
+            className={buttonVariants({ variant: "primary", size: "md" })}
+          >
+            Take Assessment
+          </a>
+        </Card>
 
         <p className="text-sm text-muted">
           This is a placeholder dashboard. Habit tracking, diet plans, and

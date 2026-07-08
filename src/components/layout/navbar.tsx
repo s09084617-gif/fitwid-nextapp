@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { cn } from "@/lib/utils";
 
 const links = [
+  { href: "/assessment", label: "Assessment" },
   { href: "#features", label: "Features" },
   { href: "#programs", label: "Programs" },
   { href: "#transformations", label: "Transformations" },
