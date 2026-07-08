@@ -1,6 +1,7 @@
 import { Check } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { FadeIn } from "@/components/ui/fade-in";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -46,22 +47,27 @@ const plans = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="max-w-5xl mx-auto px-6 py-24 w-full">
-      <h2 className="font-display text-4xl sm:text-5xl text-center mb-4">
-        Coaching Plans
-      </h2>
-      <p className="text-muted text-center max-w-xl mx-auto mb-14">
-        Simple monthly pricing. Cancel or switch plans anytime.
-      </p>
+    <section id="pricing" className="max-w-5xl mx-auto px-6 py-28 sm:py-32 w-full">
+      <FadeIn className="text-center mb-16">
+        <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
+          Investment
+        </p>
+        <h2 className="font-display text-4xl sm:text-5xl mb-4">
+          Coaching Plans
+        </h2>
+        <p className="text-muted max-w-xl mx-auto">
+          Simple monthly pricing. Cancel or switch plans anytime.
+        </p>
+      </FadeIn>
       <div className="grid sm:grid-cols-3 gap-6 items-start">
-        {plans.map((p) => (
+        {plans.map((p, i) => (
+          <FadeIn key={p.name} delay={i * 80} className="h-full">
           <div
-            key={p.name}
             className={cn(
-              "rounded-lg border p-6 flex flex-col relative",
+              "rounded-lg border p-6 flex flex-col relative h-full transition-all duration-300 hover:-translate-y-1",
               p.featured
-                ? "border-crimson bg-surface shadow-[0_0_0_1px_rgba(200,16,46,0.4)]"
-                : "border-border bg-surface"
+                ? "border-crimson glass shadow-[0_0_0_1px_rgba(204,0,0,0.4)]"
+                : "border-border glass hover:border-crimson/50"
             )}
           >
             {p.featured && (
@@ -97,6 +103,7 @@ export function Pricing() {
               Get Started
             </a>
           </div>
+          </FadeIn>
         ))}
       </div>
     </section>

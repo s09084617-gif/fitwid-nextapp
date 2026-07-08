@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { FadeIn } from "@/components/ui/fade-in";
 
 const testimonials = [
   {
@@ -26,31 +27,38 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="border-t border-border px-6 py-24 bg-surface/40"
+      className="border-t border-border px-6 py-28 sm:py-32 bg-surface/40"
     >
       <div className="max-w-5xl mx-auto">
-        <h2 className="font-display text-4xl sm:text-5xl text-center mb-4">
-          What Clients Say
-        </h2>
-        <p className="text-muted text-center max-w-xl mx-auto mb-14">
-          200+ clients coached — here&apos;s what a few of them told us.
-        </p>
+        <FadeIn className="text-center mb-16">
+          <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
+            Client Voices
+          </p>
+          <h2 className="font-display text-4xl sm:text-5xl mb-4">
+            What Clients Say
+          </h2>
+          <p className="text-muted max-w-xl mx-auto">
+            200+ clients coached — here&apos;s what a few of them told us.
+          </p>
+        </FadeIn>
         <div className="grid sm:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <Card key={t.name + t.program} className="flex flex-col">
-              <div className="flex gap-0.5 mb-3 text-gold">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
-                ))}
-              </div>
-              <p className="text-sm text-foreground/90 flex-1">
-                &ldquo;{t.quote}&rdquo;
-              </p>
-              <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-sm font-semibold">{t.name}</p>
-                <p className="text-xs text-muted">{t.program}</p>
-              </div>
-            </Card>
+          {testimonials.map((t, i) => (
+            <FadeIn key={t.name + t.program} delay={i * 80}>
+              <Card glass className="flex flex-col h-full">
+                <div className="flex gap-0.5 mb-3 text-gold">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} size={14} fill="currentColor" strokeWidth={0} />
+                  ))}
+                </div>
+                <p className="text-sm text-foreground/90 flex-1">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-sm font-semibold">{t.name}</p>
+                  <p className="text-xs text-muted">{t.program}</p>
+                </div>
+              </Card>
+            </FadeIn>
           ))}
         </div>
       </div>

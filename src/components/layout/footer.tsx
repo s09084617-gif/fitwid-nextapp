@@ -1,4 +1,5 @@
-import { Camera, MessageCircle } from "lucide-react";
+import Link from "next/link";
+import { Camera, MessageCircle, MapPin } from "lucide-react";
 
 const columns = [
   {
@@ -13,9 +14,16 @@ const columns = [
   {
     title: "Company",
     links: [
-      { label: "I-BLITZ Fitness Club", href: "#" },
-      { label: "About Coaches", href: "#" },
+      { label: "Meet the Coach", href: "#" },
+      { label: "Transformations", href: "#transformations" },
       { label: "Testimonials", href: "#testimonials" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
     ],
   },
 ];
@@ -23,7 +31,7 @@ const columns = [
 export function Footer() {
   return (
     <footer className="border-t border-border px-6 pt-16 pb-8">
-      <div className="max-w-5xl mx-auto grid sm:grid-cols-4 gap-10">
+      <div className="max-w-5xl mx-auto grid sm:grid-cols-5 gap-10">
         <div className="sm:col-span-2">
           <p className="font-display text-2xl tracking-wide mb-3">
             FIT<span className="text-crimson">WID</span>
@@ -32,6 +40,19 @@ export function Footer() {
             Science-based coaching from I-BLITZ Fitness Club, Bangalore.
             Data-driven programming, real accountability.
           </p>
+          <div className="space-y-1.5 mb-4 text-sm text-muted">
+            <a
+              href="https://wa.me/917015552731"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 hover:text-foreground transition"
+            >
+              <MessageCircle size={14} /> +91 70155 52731
+            </a>
+            <p className="flex items-center gap-2">
+              <MapPin size={14} /> Bangalore, India
+            </p>
+          </div>
           <div className="flex gap-3">
             <a
               href="https://instagram.com/sahil_r_fitness"
@@ -58,16 +79,27 @@ export function Footer() {
           <div key={col.title}>
             <p className="text-sm font-semibold mb-3">{col.title}</p>
             <ul className="space-y-2">
-              {col.links.map((l) => (
-                <li key={l.label}>
-                  <a
-                    href={l.href}
-                    className="text-sm text-muted hover:text-foreground transition"
-                  >
-                    {l.label}
-                  </a>
-                </li>
-              ))}
+              {col.links.map((l) =>
+                l.href.startsWith("/") ? (
+                  <li key={l.label}>
+                    <Link
+                      href={l.href}
+                      className="text-sm text-muted hover:text-foreground transition"
+                    >
+                      {l.label}
+                    </Link>
+                  </li>
+                ) : (
+                  <li key={l.label}>
+                    <a
+                      href={l.href}
+                      className="text-sm text-muted hover:text-foreground transition"
+                    >
+                      {l.label}
+                    </a>
+                  </li>
+                )
+              )}
             </ul>
           </div>
         ))}

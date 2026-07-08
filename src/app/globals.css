@@ -2,14 +2,32 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Dark is the true default — matches on first paint, before the theme
+   script even runs, so there's no flash of a white homepage. Light mode
+   is the opt-in exception via the .light class. */
 :root {
   /* Brand */
-  --crimson: #c8102e;
-  --crimson-hover: #e0132f;
+  --crimson: #cc0000;
+  --crimson-hover: #e60000;
   --gold: #c9a84c;
   --gold-hover: #dbbd68;
 
-  /* Light theme surface */
+  --background: #0a0a0a;
+  --surface: #161616;
+  --surface-2: #1e1e1e;
+  --foreground: #ffffff;
+  --muted: #9a9a9a;
+  --border: #2a2a2a;
+
+  --success: #2fbf71;
+  --warning: #e0ac2c;
+  --danger: #e60000;
+
+  --glass-bg: rgba(22, 22, 22, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+.light {
   --background: #ffffff;
   --surface: #f5f5f5;
   --surface-2: #ececec;
@@ -17,23 +35,12 @@
   --muted: #6b6b6b;
   --border: #e0e0e0;
 
-  /* Status */
   --success: #1a9c5a;
   --warning: #d99a1b;
   --danger: #c8102e;
-}
 
-.dark {
-  --background: #0a0a0a;
-  --surface: #141414;
-  --surface-2: #1c1c1c;
-  --foreground: #ffffff;
-  --muted: #9a9a9a;
-  --border: #262626;
-
-  --success: #2fbf71;
-  --warning: #e0ac2c;
-  --danger: #e0132f;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.06);
 }
 
 @theme inline {
@@ -57,8 +64,39 @@
   --font-display: "Bebas Neue", ui-sans-serif, system-ui, sans-serif;
 }
 
+html {
+  background: var(--background);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Glassmorphism card variant */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Fade-in-on-scroll utility (paired with the FadeIn component) */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-up {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }

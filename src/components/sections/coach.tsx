@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { FadeIn } from "@/components/ui/fade-in";
 
 const credentials = [
   "200+ clients coached to real results",
@@ -11,19 +12,19 @@ const credentials = [
 
 export function Coach() {
   return (
-    <section className="border-t border-border px-6 py-24">
+    <section className="border-t border-border px-6 py-28 sm:py-32">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        <div className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto md:mx-0">
+        <FadeIn className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto md:mx-0">
           <Image
-            src="/images/coach-profile.png"
+            src="/images/coach-profile.jpg"
             alt="Coach Sahil Bansal"
             fill
             sizes="(max-width: 768px) 90vw, 400px"
             className="object-cover"
             priority
           />
-        </div>
-        <div>
+        </FadeIn>
+        <FadeIn delay={100}>
           <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
             Meet Your Coach
           </p>
@@ -51,7 +52,7 @@ export function Coach() {
           >
             Talk to Sahil
           </a>
-        </div>
+        </FadeIn>
       </div>
     </section>
   );

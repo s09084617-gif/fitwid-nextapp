@@ -1,5 +1,6 @@
 import { Activity, LineChart, Utensils, MessagesSquare } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
+import { FadeIn } from "@/components/ui/fade-in";
 
 const features = [
   {
@@ -26,24 +27,28 @@ const features = [
 
 export function Features() {
   return (
-    <section id="features" className="max-w-5xl mx-auto px-6 py-24 w-full">
-      <h2 className="font-display text-4xl sm:text-5xl text-center mb-4">
-        Why FitWid
-      </h2>
-      <p className="text-muted text-center max-w-xl mx-auto mb-14">
-        Coaching built on measurable data, not one-size-fits-all templates.
-      </p>
+    <section id="features" className="max-w-5xl mx-auto px-6 py-28 sm:py-32 w-full">
+      <FadeIn className="text-center mb-16">
+        <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
+          Why FitWid
+        </p>
+        <h2 className="font-display text-4xl sm:text-5xl mb-4">
+          Personalized coaching, powered by real data.
+        </h2>
+      </FadeIn>
       <div className="grid sm:grid-cols-2 gap-6">
-        {features.map((f) => (
-          <Card key={f.title} className="flex gap-4 items-start">
-            <div className="shrink-0 h-11 w-11 rounded-md bg-crimson/15 border border-crimson/30 flex items-center justify-center">
-              <f.icon size={20} className="text-crimson" />
-            </div>
-            <div>
-              <CardTitle>{f.title}</CardTitle>
-              <CardDescription>{f.desc}</CardDescription>
-            </div>
-          </Card>
+        {features.map((f, i) => (
+          <FadeIn key={f.title} delay={i * 80}>
+            <Card glass className="flex gap-4 items-start h-full">
+              <div className="shrink-0 h-11 w-11 rounded-md bg-crimson/15 border border-crimson/30 flex items-center justify-center">
+                <f.icon size={20} className="text-crimson" />
+              </div>
+              <div>
+                <CardTitle>{f.title}</CardTitle>
+                <CardDescription>{f.desc}</CardDescription>
+              </div>
+            </Card>
+          </FadeIn>
         ))}
       </div>
     </section>

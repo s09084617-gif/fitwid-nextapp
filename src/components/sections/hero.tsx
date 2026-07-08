@@ -1,56 +1,73 @@
 import Image from "next/image";
 import { buttonVariants } from "@/components/ui/button";
+import { CountUp } from "@/components/ui/count-up";
 
-const stats: [string, string][] = [
-  ["200+", "Clients Coached"],
-  ["7+", "Years Experience"],
-  ["4", "InBody Metrics Tracked"],
-  ["100%", "Progressive Overload"],
+const stats: { value: number; suffix: string; label: string }[] = [
+  { value: 200, suffix: "+", label: "Clients Coached" },
+  { value: 7, suffix: "+", label: "Years Experience" },
+  { value: 4, suffix: "", label: "InBody Metrics Tracked" },
+  { value: 100, suffix: "%", label: "Progressive Overload" },
 ];
 
 export function Hero() {
   return (
     <section className="flex flex-col">
-      <div className="flex flex-col items-center justify-center text-center px-6 py-24 sm:py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,16,46,0.15),transparent_60%)]" />
-        <p className="relative text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-4">
-          I-BLITZ Fitness Club × FitWid
-        </p>
-        <div className="relative h-40 w-40 sm:h-56 sm:w-56 mb-2">
+      <div className="relative min-h-[100svh] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
+        {/* Background photo */}
+        <div className="absolute inset-0">
           <Image
-            src="/images/fitwid-logo.jpg"
-            alt="FitWid logo"
+            src="/images/coach-sahil-wide.jpg"
+            alt=""
             fill
-            sizes="224px"
-            className="object-contain"
             priority
+            sizes="100vw"
+            className="object-cover object-[75%_20%]"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
         </div>
-        <h1 className="relative font-display text-6xl sm:text-8xl tracking-wide leading-none">
-          FIT<span className="text-crimson">WID</span>
-        </h1>
-        <p className="relative mt-6 max-w-xl text-muted text-base sm:text-lg">
-          Science-based, progressive overload coaching — built on InBody data,
-          not guesswork.
-        </p>
-        <div className="relative mt-10 flex flex-col sm:flex-row gap-4">
-          <a href="#pricing" className={buttonVariants({ variant: "primary", size: "lg" })}>
-            Start Coaching
-          </a>
-          <a href="#programs" className={buttonVariants({ variant: "outline", size: "lg" })}>
-            See Programs
-          </a>
+
+        {/* Animated red glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(204,0,0,0.25),transparent_60%)] animate-pulse [animation-duration:4s]" />
+
+        <div className="relative z-10 max-w-3xl">
+          <p className="text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-6">
+            I-BLITZ Fitness Club × FitWid
+          </p>
+          <h1 className="font-display text-5xl sm:text-7xl tracking-wide leading-[1.05] mb-6">
+            Transform Your Body with{" "}
+            <span className="text-crimson">Science</span>, Not Guesswork
+          </h1>
+          <p className="max-w-xl mx-auto text-muted text-base sm:text-lg mb-10">
+            Personalized workouts, nutrition, and InBody-driven coaching.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/assessment"
+              className={buttonVariants({ variant: "primary", size: "lg" })}
+            >
+              Start Free Assessment
+            </a>
+            <a
+              href="#transformations"
+              className={buttonVariants({ variant: "outline", size: "lg" })}
+            >
+              View Transformations
+            </a>
+          </div>
         </div>
       </div>
 
-      <div className="border-y border-border bg-surface">
+      <div className="border-y border-border glass">
         <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
-          {stats.map(([stat, label]) => (
-            <div key={label} className="px-4 py-8 text-center">
+          {stats.map((s) => (
+            <div key={s.label} className="px-4 py-8 text-center">
               <div className="font-display text-3xl sm:text-4xl text-gold">
-                {stat}
+                <CountUp value={s.value} suffix={s.suffix} />
               </div>
-              <div className="text-xs sm:text-sm text-muted mt-1">{label}</div>
+              <div className="text-xs sm:text-sm text-muted mt-1">
+                {s.label}
+              </div>
             </div>
           ))}
         </div>

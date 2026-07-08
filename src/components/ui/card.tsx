@@ -1,12 +1,19 @@
 import { type HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
-  ({ className, ...props }, ref) => (
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
+  glass?: boolean;
+  lift?: boolean;
+}
+
+export const Card = forwardRef<HTMLDivElement, CardProps>(
+  ({ className, glass, lift = true, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border border-border bg-surface p-6 transition hover:border-crimson/50",
+        "rounded-lg border border-border p-6 transition-all duration-300 hover:border-crimson/50",
+        glass ? "glass" : "bg-surface",
+        lift && "hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)]",
         className
       )}
       {...props}

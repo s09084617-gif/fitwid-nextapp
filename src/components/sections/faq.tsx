@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FadeIn } from "@/components/ui/fade-in";
 
 const faqs = [
   {
@@ -33,22 +34,27 @@ export function FAQ() {
   return (
     <section
       id="faq"
-      className="border-t border-border px-6 py-24 bg-surface/40"
+      className="border-t border-border px-6 py-28 sm:py-32 bg-surface/40"
     >
       <div className="max-w-3xl mx-auto">
-        <h2 className="font-display text-4xl sm:text-5xl text-center mb-4">
-          Frequently Asked Questions
-        </h2>
-        <p className="text-muted text-center mb-14">
-          Still have questions? Message us directly on WhatsApp.
-        </p>
+        <FadeIn className="text-center mb-16">
+          <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
+            Questions
+          </p>
+          <h2 className="font-display text-4xl sm:text-5xl mb-4">
+            Frequently Asked Questions
+          </h2>
+          <p className="text-muted">
+            Still have questions? Message us directly on WhatsApp.
+          </p>
+        </FadeIn>
         <div className="space-y-3">
           {faqs.map((item, i) => {
             const isOpen = openIndex === i;
             return (
+              <FadeIn key={item.q} delay={i * 50}>
               <div
-                key={item.q}
-                className="rounded-lg border border-border bg-surface overflow-hidden"
+                className="rounded-lg border border-border glass overflow-hidden"
               >
                 <button
                   type="button"
@@ -78,6 +84,7 @@ export function FAQ() {
                   </div>
                 </div>
               </div>
+              </FadeIn>
             );
           })}
         </div>
