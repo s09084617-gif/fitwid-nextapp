@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -9,6 +9,13 @@ const actions = [
     label: "Take Assessment",
     desc: "Update your BMI, body fat & fitness score",
     href: "/assessment",
+    external: false,
+  },
+  {
+    icon: Sparkles,
+    label: "Generate Workout",
+    desc: "Build a workout by goal, level & equipment",
+    href: "/workout-generator",
     external: false,
   },
   {

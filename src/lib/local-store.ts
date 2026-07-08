@@ -1,9 +1,11 @@
 "use client";
 
 import type { AssessmentResult } from "@/lib/assessment";
+import type { WorkoutPlan } from "@/lib/workout-generator";
 
 const LAST_ASSESSMENT_KEY = "fitwid:lastAssessment";
 const WEIGHT_LOG_KEY = "fitwid:weightLog";
+const SAVED_WORKOUTS_KEY = "fitwid:savedWorkouts";
 
 export interface WeightEntry {
   date: string; // ISO date, e.g. 2026-07-08
@@ -62,4 +64,21 @@ export function saveLastAssessment(result: AssessmentResult, weightKg: number) {
 
 export function todayISO() {
   return new Date().toISOString().slice(0, 10);
+}
+
+export function getSavedWorkouts(): WorkoutPlan[] {
+  return safeGet<WorkoutPlan[]>(SAVED_WORKOUTS_KEY) ?? [];
+}
+
+export function saveWorkout(plan: WorkoutPlan) {
+  const list = getSavedWorkouts();
+  list.unshift(plan);
+  safeSet(SAVED_WORKOUTS_KEY, list.slice(0, 50)); // cap at 50 saved workouts
+  return list;
+}
+
+export function deleteWorkout(id: string) {
+  const list = getSavedWorkouts().filter((w) => w.id !== id);
+  safeSet(SAVED_WORKOUTS_KEY, list);
+  return list;
 }

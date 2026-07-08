@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/assessment", label: "Assessment" },
+  { href: "/workout-generator", label: "Workouts" },
   { href: "#features", label: "Features" },
   { href: "#programs", label: "Programs" },
   { href: "#transformations", label: "Transformations" },
@@ -26,7 +27,7 @@ export function Navbar() {
           FIT<span className="text-crimson">WID</span>
         </a>
 
-        <ul className="hidden md:flex items-center gap-8 text-sm text-muted">
+        <ul className="hidden lg:flex items-center gap-6 text-sm text-muted">
           {links.map((link) => (
             <li key={link.href}>
               <a href={link.href} className="hover:text-foreground transition">
@@ -36,7 +37,7 @@ export function Navbar() {
           ))}
         </ul>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-3">
           <ThemeToggle />
           <a
             href="/login"
@@ -62,7 +63,7 @@ export function Navbar() {
 
         <button
           type="button"
-          className="md:hidden p-2 text-foreground"
+          className="lg:hidden p-2 text-foreground"
           aria-label="Toggle menu"
           onClick={() => setOpen((v) => !v)}
         >
@@ -72,8 +73,8 @@ export function Navbar() {
 
       <div
         className={cn(
-          "md:hidden overflow-hidden border-t border-border transition-[max-height] duration-300",
-          open ? "max-h-96" : "max-h-0"
+          "lg:hidden overflow-hidden border-t border-border transition-[max-height] duration-300",
+          open ? "max-h-[32rem]" : "max-h-0"
         )}
       >
         <ul className="flex flex-col px-6 py-4 gap-4 text-sm text-muted">
