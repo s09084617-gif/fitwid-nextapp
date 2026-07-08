@@ -16,25 +16,26 @@ export function Hero() {
         {/* Background photo */}
         <div className="absolute inset-0">
           <Image
-            src="/images/coach-sahil-wide.jpg"
+            src="/images/hero-collage.jpg"
             alt=""
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[75%_20%]"
+            className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/85 to-background/50" />
-          <div className="absolute inset-0 bg-gradient-to-r from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/60" />
+          <div className="absolute inset-0 bg-background/30" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(10,10,10,0.7),transparent_70%)]" />
         </div>
 
         {/* Animated red glow */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(204,0,0,0.25),transparent_60%)] animate-pulse [animation-duration:4s]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(204,0,0,0.3),transparent_60%)] animate-pulse [animation-duration:4s]" />
 
         <div className="relative z-10 max-w-3xl">
           <p className="text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-6">
             I-BLITZ Fitness Club × FitWid
           </p>
-          <h1 className="font-display text-5xl sm:text-7xl tracking-wide leading-[1.05] mb-6">
+          <h1 className="font-display text-5xl sm:text-7xl tracking-wide leading-[1.05] mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.8)]">
             Transform Your Body with{" "}
             <span className="text-crimson">Science</span>, Not Guesswork
           </h1>
