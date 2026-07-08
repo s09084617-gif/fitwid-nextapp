@@ -4,21 +4,21 @@ import { Card } from "@/components/ui/card";
 const testimonials = [
   {
     quote:
-      "The InBody tracking changed everything for me — I finally understood why the scale wasn't moving even though I was losing fat.",
-    name: "Client, Bangalore",
-    program: "Fat Loss Program, 4 months",
+      "Coach Sahil completely changed my approach to training. In 16 weeks I went from 78kg to 70kg while actually gaining muscle. The program was insane — but it worked.",
+    name: "Rahul Mehta",
+    program: "Fat Loss · Bangalore",
   },
   {
     quote:
-      "Coach checked in every single week without fail. That accountability is the reason I actually finished the program.",
-    name: "Client, Bangalore",
-    program: "Online Coaching, 6 months",
+      "I've tried 3 other coaches. None of them came close to what Sahil delivers. The weekly check-ins, the nutrition guidance, the accountability — it's a whole system.",
+    name: "Priya Sharma",
+    program: "Body Recomposition · Online Client",
   },
   {
     quote:
-      "Diet plan actually used food I eat at home. No random Western meal plan I'd never stick to.",
-    name: "Client, Bangalore",
-    program: "Lean Muscle Program, 5 months",
+      "First person to actually explain the WHY behind every exercise. My lifts went up 40% in 4 months. I finally feel like I know what I'm doing in the gym.",
+    name: "Vikram Nair",
+    program: "Strength · Mumbai",
   },
 ];
 

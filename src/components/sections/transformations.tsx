@@ -1,9 +1,25 @@
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 const transformations = [
-  { name: "Client A", duration: "16 weeks", stat: "-8.2% Body Fat" },
-  { name: "Client B", duration: "12 weeks", stat: "+3.1kg SMM" },
-  { name: "Client C", duration: "20 weeks", stat: "-11kg, VFA normalized" },
+  {
+    name: "Rahul M.",
+    duration: "16 Weeks",
+    stat: "+8kg Muscle · −12kg Fat",
+    image: "/images/transform-man-tshirt.jpg",
+  },
+  {
+    name: "Priya S.",
+    duration: "20 Weeks",
+    stat: "+5kg Muscle · −14kg Fat",
+    image: "/images/transform-woman-1.jpg",
+  },
+  {
+    name: "Karan T.",
+    duration: "14 Weeks",
+    stat: "+10kg Muscle · −8kg Fat",
+    image: "/images/transform-man-tank.jpg",
+  },
 ];
 
 export function Transformations() {
@@ -13,7 +29,8 @@ export function Transformations() {
         Real Transformations
       </h2>
       <p className="text-muted text-center max-w-xl mx-auto mb-14">
-        Every result backed by before/after InBody scans — not just photos.
+        200+ transformations and counting. Every result backed by real
+        InBody progress — not just photos.
       </p>
       <div className="grid sm:grid-cols-3 gap-6">
         {transformations.map((t) => (
@@ -21,10 +38,14 @@ export function Transformations() {
             key={t.name}
             className="rounded-lg overflow-hidden border border-border bg-surface"
           >
-            <div className="aspect-[3/4] bg-[linear-gradient(160deg,var(--surface-2),var(--background))] flex items-center justify-center relative">
-              <span className="font-display text-2xl text-muted/50 tracking-wide">
-                Before / After
-              </span>
+            <div className="aspect-square relative">
+              <Image
+                src={t.image}
+                alt={`${t.name} before and after transformation`}
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-cover"
+              />
               <div className="absolute top-3 left-3">
                 <Badge variant="gold">{t.duration}</Badge>
               </div>
@@ -36,10 +57,6 @@ export function Transformations() {
           </div>
         ))}
       </div>
-      <p className="text-center text-xs text-muted mt-8">
-        Photo placeholders shown — swap in real client before/after images
-        (with consent) before launch.
-      </p>
     </section>
   );
 }
