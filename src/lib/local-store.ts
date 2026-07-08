@@ -8,6 +8,9 @@ const LAST_ASSESSMENT_KEY = "fitwid:lastAssessment";
 const WEIGHT_LOG_KEY = "fitwid:weightLog";
 const SAVED_WORKOUTS_KEY = "fitwid:savedWorkouts";
 const SAVED_MEAL_PLANS_KEY = "fitwid:savedMealPlans";
+const PROGRESS_PHOTOS_KEY = "fitwid:progressPhotos";
+const MEASUREMENTS_KEY = "fitwid:measurements";
+const WORKOUT_HISTORY_KEY = "fitwid:workoutHistory";
 
 export interface WeightEntry {
   date: string; // ISO date, e.g. 2026-07-08
@@ -20,6 +23,31 @@ export interface StoredAssessment {
   savedAt: string;
 }
 
+export interface ProgressPhoto {
+  id: string;
+  date: string;
+  dataUrl: string;
+  note?: string;
+}
+
+export interface MeasurementEntry {
+  id: string;
+  date: string;
+  waistCm?: number;
+  chestCm?: number;
+  hipsCm?: number;
+  bicepsCm?: number;
+  thighsCm?: number;
+}
+
+export interface WorkoutHistoryEntry {
+  id: string;
+  date: string;
+  title: string;
+  durationMinutes?: number;
+  notes?: string;
+}
+
 function safeGet<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
   try {
@@ -30,12 +58,14 @@ function safeGet<T>(key: string): T | null {
   }
 }
 
-function safeSet(key: string, value: unknown) {
-  if (typeof window === "undefined") return;
+function safeSet(key: string, value: unknown): boolean {
+  if (typeof window === "undefined") return false;
   try {
     window.localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch {
-    // localStorage unavailable (private mode, quota, etc) — fail silently
+    // localStorage unavailable or quota exceeded — caller decides how to handle
+    return false;
   }
 }
 
@@ -62,6 +92,12 @@ export function saveLastAssessment(result: AssessmentResult, weightKg: number) {
     savedAt: todayISO(),
   } satisfies StoredAssessment);
   addWeightEntry(weightKg);
+}
+
+export function deleteWeightEntry(date: string) {
+  const log = getWeightLog().filter((e) => e.date !== date);
+  safeSet(WEIGHT_LOG_KEY, log);
+  return log;
 }
 
 export function todayISO() {
@@ -99,5 +135,99 @@ export function saveMealPlan(plan: MealPlan) {
 export function deleteMealPlan(id: string) {
   const list = getSavedMealPlans().filter((p) => p.id !== id);
   safeSet(SAVED_MEAL_PLANS_KEY, list);
+  return list;
+}
+
+// --- Progress Photos ---
+
+export function getProgressPhotos(): ProgressPhoto[] {
+  return safeGet<ProgressPhoto[]>(PROGRESS_PHOTOS_KEY) ?? [];
+}
+
+/** Returns null on success, or an error message string if storage failed (e.g. quota exceeded). */
+export function addProgressPhoto(
+  dataUrl: string,
+  note?: string,
+  date = todayISO()
+): string | null {
+  const list = getProgressPhotos();
+  const entry: ProgressPhoto = {
+    id: `photo_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    date,
+    dataUrl,
+    note,
+  };
+  const updated = [entry, ...list].slice(0, 20); // cap at 20 photos
+  const ok = safeSet(PROGRESS_PHOTOS_KEY, updated);
+  if (!ok) {
+    return "Couldn't save photo — your browser's storage may be full. Try deleting an old photo first.";
+  }
+  return null;
+}
+
+export function deleteProgressPhoto(id: string) {
+  const list = getProgressPhotos().filter((p) => p.id !== id);
+  safeSet(PROGRESS_PHOTOS_KEY, list);
+  return list;
+}
+
+// --- Measurements ---
+
+export function getMeasurements(): MeasurementEntry[] {
+  const list = safeGet<MeasurementEntry[]>(MEASUREMENTS_KEY) ?? [];
+  return [...list].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export function addMeasurement(
+  entry: Omit<MeasurementEntry, "id" | "date"> & { date?: string }
+) {
+  const date = entry.date ?? todayISO();
+  const list = getMeasurements().filter((m) => m.date !== date);
+  list.push({
+    id: `meas_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    date,
+    waistCm: entry.waistCm,
+    chestCm: entry.chestCm,
+    hipsCm: entry.hipsCm,
+    bicepsCm: entry.bicepsCm,
+    thighsCm: entry.thighsCm,
+  });
+  const sorted = list.sort((a, b) => a.date.localeCompare(b.date));
+  safeSet(MEASUREMENTS_KEY, sorted);
+  return sorted;
+}
+
+export function deleteMeasurement(id: string) {
+  const list = getMeasurements().filter((m) => m.id !== id);
+  safeSet(MEASUREMENTS_KEY, list);
+  return list;
+}
+
+// --- Workout History ---
+
+export function getWorkoutHistory(): WorkoutHistoryEntry[] {
+  const list = safeGet<WorkoutHistoryEntry[]>(WORKOUT_HISTORY_KEY) ?? [];
+  return [...list].sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function addWorkoutHistoryEntry(
+  entry: Omit<WorkoutHistoryEntry, "id" | "date"> & { date?: string }
+) {
+  const list = getWorkoutHistory();
+  list.unshift({
+    id: `hist_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+    date: entry.date ?? todayISO(),
+    title: entry.title,
+    durationMinutes: entry.durationMinutes,
+    notes: entry.notes,
+  });
+  const sorted = list.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 200);
+  safeSet(WORKOUT_HISTORY_KEY, sorted);
+  return sorted;
+}
+
+export function deleteWorkoutHistoryEntry(id: string) {
+  const list = getWorkoutHistory().filter((w) => w.id !== id);
+  safeSet(WORKOUT_HISTORY_KEY, list);
   return list;
 }

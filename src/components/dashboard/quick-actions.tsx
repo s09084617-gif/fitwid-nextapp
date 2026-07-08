@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,6 +23,13 @@ const actions = [
     label: "Plan Nutrition",
     desc: "Calculate macros & get an Indian meal plan",
     href: "/nutrition",
+    external: false,
+  },
+  {
+    icon: TrendingUp,
+    label: "Track Progress",
+    desc: "Log weight, measurements & progress photos",
+    href: "/progress",
     external: false,
   },
   {
