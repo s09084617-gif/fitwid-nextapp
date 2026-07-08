@@ -124,6 +124,23 @@ export async function saveLastAssessment(
   await addWeightEntry(weightKg);
 }
 
+/** Full assessment history (not just the latest) — used for body fat % trend over time. */
+export async function getAssessmentHistory(): Promise<StoredAssessment[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("assessments")
+    .select("result, weight_kg, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: true });
+  return (data ?? []).map((r) => ({
+    result: r.result as AssessmentResult,
+    weightKg: Number(r.weight_kg),
+    savedAt: r.created_at,
+  }));
+}
+
 // --- Saved Workouts ---
 
 export async function getSavedWorkouts(): Promise<WorkoutPlan[]> {
@@ -306,4 +323,59 @@ export async function deleteWorkoutHistoryEntry(id: string): Promise<WorkoutHist
   const supabase = createClient();
   await supabase.from("workout_history").delete().eq("user_id", userId).eq("id", id);
   return getWorkoutHistory();
+}
+
+// --- Personal Records ---
+
+export interface PersonalRecord {
+  id: string;
+  exerciseName: string;
+  weightKg?: number;
+  reps?: number;
+  date: string;
+  notes?: string;
+}
+
+export async function getPersonalRecords(): Promise<PersonalRecord[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("personal_records")
+    .select("id, exercise_name, weight_kg, reps, log_date, notes")
+    .eq("user_id", userId)
+    .order("log_date", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    exerciseName: r.exercise_name,
+    weightKg: r.weight_kg ? Number(r.weight_kg) : undefined,
+    reps: r.reps ?? undefined,
+    date: r.log_date,
+    notes: r.notes ?? undefined,
+  }));
+}
+
+export async function addPersonalRecord(
+  record: Omit<PersonalRecord, "id" | "date"> & { date?: string }
+): Promise<PersonalRecord[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  await supabase.from("personal_records").insert({
+    user_id: userId,
+    exercise_name: record.exerciseName,
+    weight_kg: record.weightKg ?? null,
+    reps: record.reps ?? null,
+    log_date: record.date ?? todayISO(),
+    notes: record.notes ?? null,
+  });
+  return getPersonalRecords();
+}
+
+export async function deletePersonalRecord(id: string): Promise<PersonalRecord[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  await supabase.from("personal_records").delete().eq("user_id", userId).eq("id", id);
+  return getPersonalRecords();
 }
