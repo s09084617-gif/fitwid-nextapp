@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function AdminIndexPage() {
-  redirect("/dashboard/admin/clients");
+  redirect("/dashboard/admin/coach-dashboard");
 }

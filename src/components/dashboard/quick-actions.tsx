@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,6 +37,27 @@ const actions = [
     label: "Track Progress",
     desc: "Log weight, measurements & progress photos",
     href: "/dashboard/progress",
+    external: false,
+  },
+  {
+    icon: BarChart3,
+    label: "View Analytics",
+    desc: "Weight, body fat, muscle mass & adherence charts",
+    href: "/dashboard/analytics",
+    external: false,
+  },
+  {
+    icon: CheckSquare,
+    label: "Log Habits",
+    desc: "Water, sleep, steps, protein & meditation",
+    href: "/dashboard/habits",
+    external: false,
+  },
+  {
+    icon: CalendarDays,
+    label: "Calendar",
+    desc: "Rest days, upcoming sessions & PT booking",
+    href: "/dashboard/calendar",
     external: false,
   },
   {

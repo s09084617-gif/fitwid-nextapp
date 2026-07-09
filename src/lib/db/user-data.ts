@@ -479,3 +479,130 @@ export async function saveOnboardingResponse(input: {
     completed_at: new Date().toISOString(),
   });
 }
+
+// --- Habit Tracker ---
+
+export interface HabitLog {
+  date: string;
+  waterMl?: number;
+  sleepHours?: number;
+  steps?: number;
+  proteinG?: number;
+  workoutCompleted: boolean;
+  meditationMinutes?: number;
+}
+
+export async function getHabitLogs(days = 14): Promise<HabitLog[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  const { data } = await supabase
+    .from("habit_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .gte("log_date", since.toISOString().slice(0, 10))
+    .order("log_date", { ascending: true });
+  return (data ?? []).map((r) => ({
+    date: r.log_date,
+    waterMl: r.water_ml ?? undefined,
+    sleepHours: r.sleep_hours ?? undefined,
+    steps: r.steps ?? undefined,
+    proteinG: r.protein_g ?? undefined,
+    workoutCompleted: r.workout_completed,
+    meditationMinutes: r.meditation_minutes ?? undefined,
+  }));
+}
+
+export async function upsertHabitLog(
+  entry: Partial<Omit<HabitLog, "date">> & { date?: string }
+): Promise<HabitLog[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const date = entry.date ?? todayISO();
+
+  // Merge with any existing entry for today so partial updates
+  // (e.g. just logging water) don't wipe out other fields.
+  const { data: existing } = await supabase
+    .from("habit_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("log_date", date)
+    .maybeSingle();
+
+  await supabase.from("habit_logs").upsert({
+    user_id: userId,
+    log_date: date,
+    water_ml: entry.waterMl ?? existing?.water_ml ?? null,
+    sleep_hours: entry.sleepHours ?? existing?.sleep_hours ?? null,
+    steps: entry.steps ?? existing?.steps ?? null,
+    protein_g: entry.proteinG ?? existing?.protein_g ?? null,
+    workout_completed: entry.workoutCompleted ?? existing?.workout_completed ?? false,
+    meditation_minutes: entry.meditationMinutes ?? existing?.meditation_minutes ?? null,
+    updated_at: new Date().toISOString(),
+  });
+  return getHabitLogs();
+}
+
+// --- Calendar & Scheduling ---
+
+export interface CalendarEvent {
+  id: string;
+  date: string;
+  type: "rest" | "workout" | "pt_session";
+  title: string | null;
+  notes: string | null;
+  status: "confirmed" | "pending" | "cancelled";
+}
+
+export async function getCalendarEvents(
+  fromDate?: string,
+  toDate?: string
+): Promise<CalendarEvent[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  let query = supabase.from("calendar_events").select("*").eq("user_id", userId);
+  if (fromDate) query = query.gte("event_date", fromDate);
+  if (toDate) query = query.lte("event_date", toDate);
+  const { data } = await query.order("event_date", { ascending: true });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    date: r.event_date,
+    type: r.event_type,
+    title: r.title,
+    notes: r.notes,
+    status: r.status,
+  }));
+}
+
+export async function addCalendarEvent(entry: {
+  date: string;
+  type: CalendarEvent["type"];
+  title?: string;
+  notes?: string;
+  status?: CalendarEvent["status"];
+}): Promise<CalendarEvent[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  await supabase.from("calendar_events").insert({
+    user_id: userId,
+    event_date: entry.date,
+    event_type: entry.type,
+    title: entry.title ?? null,
+    notes: entry.notes ?? null,
+    status: entry.status ?? "confirmed",
+  });
+  return getCalendarEvents();
+}
+
+export async function deleteCalendarEvent(id: string): Promise<CalendarEvent[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  await supabase.from("calendar_events").delete().eq("user_id", userId).eq("id", id);
+  return getCalendarEvents();
+}
