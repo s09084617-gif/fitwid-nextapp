@@ -22,6 +22,7 @@ import { generateMealPlan, type MealPlan } from "@/lib/meal-plan-generator";
 import type { Difficulty, Equipment } from "@/lib/workout-data";
 import type { DietTag } from "@/lib/indian-foods";
 import { saveLastAssessment } from "@/lib/db/user-data";
+import { trackEvent } from "@/lib/analytics/events";
 
 const MEDICAL_OPTIONS = [
   "None",
@@ -134,6 +135,7 @@ export function AssessmentForm() {
 
     const calculated = runAssessment(input);
     saveLastAssessment(calculated, weightKg);
+    trackEvent("assessment_completed", { goal: form.goal });
 
     const workoutPlan = generateWorkout({
       goal: mapToWorkoutGoal(form.goal),

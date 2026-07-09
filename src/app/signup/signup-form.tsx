@@ -7,6 +7,7 @@ import { recordReferralSignup } from "@/lib/db/user-data";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GoogleButton } from "@/components/auth/google-button";
 import { InAppBrowserWarning } from "@/components/auth/in-app-browser-warning";
+import { trackEvent } from "@/lib/analytics/events";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -44,6 +45,7 @@ export default function SignupForm() {
     if (refCode) {
       await recordReferralSignup(refCode, email);
     }
+    trackEvent("signup_completed", { hasReferral: !!refCode });
     setSuccess(true);
   }
 

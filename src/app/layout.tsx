@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { PostHogProvider } from "@/lib/analytics/posthog-provider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fitwid.fit"),
@@ -43,6 +44,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
+        <PostHogProvider />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

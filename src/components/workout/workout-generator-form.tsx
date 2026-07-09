@@ -14,8 +14,10 @@ import {
   type Goal,
   type Focus,
   type WorkoutPlan,
+  MUSCLE_GROUPS_SMALL_TO_BIG,
+  MUSCLE_GROUP_LABELS,
 } from "@/lib/workout-generator";
-import type { Difficulty, Equipment } from "@/lib/workout-data";
+import type { Difficulty, Equipment, MuscleGroup } from "@/lib/workout-data";
 
 const EQUIPMENT_OPTIONS: { value: Equipment; label: string }[] = [
   { value: "bodyweight", label: "Bodyweight" },
@@ -45,6 +47,8 @@ export function WorkoutGeneratorForm() {
   const [experience, setExperience] = useState<Difficulty>("beginner");
   const [equipment, setEquipment] = useState<Equipment[]>(["bodyweight"]);
   const [focus, setFocus] = useState<Focus>("full_body");
+  const [focusMode, setFocusMode] = useState<"preset" | "custom">("preset");
+  const [muscleGroups, setMuscleGroups] = useState<MuscleGroup[]>([]);
   const [plan, setPlan] = useState<WorkoutPlan | null>(null);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,9 +65,24 @@ export function WorkoutGeneratorForm() {
       setError("Select at least one equipment option.");
       return;
     }
+    if (focusMode === "custom" && muscleGroups.length === 0) {
+      setError("Select at least one muscle to target.");
+      return;
+    }
     setError(null);
     setSaved(false);
-    setPlan(generateWorkout({ goal, experience, equipment, focus }, customExercises));
+    setPlan(
+      generateWorkout(
+        {
+          goal,
+          experience,
+          equipment,
+          focus,
+          muscleGroups: focusMode === "custom" ? muscleGroups : undefined,
+        },
+        customExercises
+      )
+    );
   }
 
   async function handleSave() {
@@ -134,17 +153,58 @@ export function WorkoutGeneratorForm() {
             options={EQUIPMENT_OPTIONS}
           />
 
-          <Select
-            label="Focus"
-            value={focus}
-            onChange={(e) => setFocus(e.target.value as Focus)}
-          >
-            {FOCUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </Select>
+          <div className="flex flex-col gap-1.5 w-full">
+            <span className="text-sm font-medium text-foreground">Focus</span>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <button
+                type="button"
+                onClick={() => setFocusMode("preset")}
+                className={
+                  focusMode === "preset"
+                    ? "rounded-md border border-crimson bg-crimson/15 text-crimson px-3 py-2 text-sm font-medium"
+                    : "rounded-md border border-border px-3 py-2 text-sm font-medium text-muted hover:text-foreground"
+                }
+              >
+                Preset Category
+              </button>
+              <button
+                type="button"
+                onClick={() => setFocusMode("custom")}
+                className={
+                  focusMode === "custom"
+                    ? "rounded-md border border-crimson bg-crimson/15 text-crimson px-3 py-2 text-sm font-medium"
+                    : "rounded-md border border-border px-3 py-2 text-sm font-medium text-muted hover:text-foreground"
+                }
+              >
+                Pick Muscles
+              </button>
+            </div>
+
+            {focusMode === "preset" ? (
+              <Select value={focus} onChange={(e) => setFocus(e.target.value as Focus)}>
+                {FOCUS_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <>
+                <p className="text-[11px] text-muted mb-1">
+                  Select any combination — ordered small to big.
+                </p>
+                <MultiToggleGroup
+                  label="Target Muscles"
+                  values={muscleGroups}
+                  onChange={setMuscleGroups}
+                  options={MUSCLE_GROUPS_SMALL_TO_BIG.map((m) => ({
+                    value: m,
+                    label: MUSCLE_GROUP_LABELS[m],
+                  }))}
+                />
+              </>
+            )}
+          </div>
 
           {error && <p className="text-sm text-danger">{error}</p>}
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics/events";
 import {
   getSubscriptionPlans,
   getMySubscription,
@@ -27,6 +28,7 @@ export default function BillingPage() {
 
   async function handleRequest(planId: string) {
     await requestSubscription(planId);
+    trackEvent("subscription_requested", { planId });
     setRequested(planId);
   }
 

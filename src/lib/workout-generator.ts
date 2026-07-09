@@ -16,6 +16,10 @@ export interface GeneratorFilters {
   experience: Difficulty;
   equipment: Equipment[];
   focus: Focus;
+  /** When set (non-empty), overrides `focus` entirely — lets users pick
+   * any combination of individual muscles directly instead of a preset
+   * category. */
+  muscleGroups?: MuscleGroup[];
 }
 
 export interface WorkoutExercise {
@@ -43,6 +47,36 @@ const FOCUS_MUSCLE_MAP: Record<Focus, MuscleGroup[]> = {
   legs: ["quads", "hamstrings", "glutes", "calves"],
   core: ["core"],
   cardio: ["cardio"],
+};
+
+/** All individually selectable muscle groups, ordered small → big (by
+ * typical muscle mass), for the "pick your own muscles" multi-select. */
+export const MUSCLE_GROUPS_SMALL_TO_BIG: MuscleGroup[] = [
+  "calves",
+  "biceps",
+  "triceps",
+  "shoulders",
+  "core",
+  "chest",
+  "back",
+  "hamstrings",
+  "glutes",
+  "quads",
+  "cardio",
+];
+
+export const MUSCLE_GROUP_LABELS: Record<MuscleGroup, string> = {
+  calves: "Calves",
+  biceps: "Biceps",
+  triceps: "Triceps",
+  shoulders: "Shoulders",
+  core: "Core / Abs",
+  chest: "Chest",
+  back: "Back",
+  hamstrings: "Hamstrings",
+  glutes: "Glutes",
+  quads: "Quads",
+  cardio: "Cardio",
 };
 
 const DIFFICULTY_RANK: Record<Difficulty, number> = {
@@ -84,8 +118,9 @@ export function generateWorkout(
   filters: GeneratorFilters,
   customExercises: Exercise[] = []
 ): WorkoutPlan {
-  const { goal, experience, equipment, focus } = filters;
-  const targetMuscles = FOCUS_MUSCLE_MAP[focus];
+  const { goal, experience, equipment, focus, muscleGroups } = filters;
+  const targetMuscles =
+    muscleGroups && muscleGroups.length > 0 ? muscleGroups : FOCUS_MUSCLE_MAP[focus];
   const maxDifficulty = DIFFICULTY_RANK[experience];
 
   const allExercises = [...EXERCISES, ...customExercises];
@@ -150,10 +185,13 @@ export function generateWorkout(
   );
   const estimatedMinutes = Math.max(15, Math.round(totalSeconds / 60));
 
-  const focusLabel = focus
-    .split("_")
-    .map((w) => w[0].toUpperCase() + w.slice(1))
-    .join(" ");
+  const focusLabel =
+    muscleGroups && muscleGroups.length > 0
+      ? muscleGroups.map((m) => MUSCLE_GROUP_LABELS[m]).join(" + ")
+      : focus
+          .split("_")
+          .map((w) => w[0].toUpperCase() + w.slice(1))
+          .join(" ");
 
   return {
     id: `wk_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
