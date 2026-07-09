@@ -13,6 +13,7 @@ const TABS = [
   { href: "/dashboard/analytics", label: "Analytics" },
   { href: "/dashboard/habits", label: "Habits" },
   { href: "/dashboard/calendar", label: "Calendar" },
+  { href: "/dashboard/achievements", label: "Achievements" },
   { href: "/dashboard/coach", label: "AI Coach" },
 ];
 

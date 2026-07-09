@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3 } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3, Trophy, Bell, Gift, FolderOpen, CreditCard, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -65,6 +65,48 @@ const actions = [
     label: "Ask AI Coach",
     desc: "Workout, nutrition & recovery Q&A",
     href: "/dashboard/coach",
+    external: false,
+  },
+  {
+    icon: Trophy,
+    label: "Achievements",
+    desc: "XP, levels, badges & monthly challenge",
+    href: "/dashboard/achievements",
+    external: false,
+  },
+  {
+    icon: Bell,
+    label: "Notifications",
+    desc: "Reminders based on your real activity",
+    href: "/dashboard/notifications",
+    external: false,
+  },
+  {
+    icon: Users,
+    label: "Community",
+    desc: "Leaderboard & client success stories",
+    href: "/dashboard/community",
+    external: false,
+  },
+  {
+    icon: Gift,
+    label: "Refer a Friend",
+    desc: "Share your link, track your referrals",
+    href: "/dashboard/referrals",
+    external: false,
+  },
+  {
+    icon: FolderOpen,
+    label: "File Manager",
+    desc: "Upload InBody & blood test reports",
+    href: "/dashboard/files",
+    external: false,
+  },
+  {
+    icon: CreditCard,
+    label: "Billing",
+    desc: "View plans and request a subscription",
+    href: "/dashboard/billing",
     external: false,
   },
   {

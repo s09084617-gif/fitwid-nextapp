@@ -81,3 +81,33 @@ export async function getCustomExercises(): Promise<Exercise[]> {
     videoUrl: null,
   })) as Exercise[];
 }
+
+export interface SuccessStory {
+  id: string;
+  clientName: string;
+  goal: string;
+  durationWeeks: number | null;
+  story: string;
+  photoUrl: string | null;
+  featured: boolean;
+}
+
+export async function getSuccessStories(): Promise<SuccessStory[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("success_stories")
+    .select("id, client_name, goal, duration_weeks, story, photo_url, featured")
+    .order("featured", { ascending: false });
+
+  if (error || !data) return [];
+
+  return data.map((r) => ({
+    id: r.id,
+    clientName: r.client_name,
+    goal: r.goal,
+    durationWeeks: r.duration_weeks,
+    story: r.story,
+    photoUrl: r.photo_url,
+    featured: r.featured,
+  }));
+}

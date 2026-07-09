@@ -606,3 +606,122 @@ export async function deleteCalendarEvent(id: string): Promise<CalendarEvent[]> 
   await supabase.from("calendar_events").delete().eq("user_id", userId).eq("id", id);
   return getCalendarEvents();
 }
+
+// --- Referral Program ---
+
+function generateReferralCode(userId: string): string {
+  return `FW-${userId.slice(0, 6).toUpperCase()}`;
+}
+
+export async function getMyReferralCode(): Promise<string | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+
+  const { data: existing } = await supabase
+    .from("referral_codes")
+    .select("code")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (existing) return existing.code;
+
+  const code = generateReferralCode(userId);
+  await supabase.from("referral_codes").insert({ user_id: userId, code });
+  return code;
+}
+
+export interface ReferralSignup {
+  id: string;
+  referredEmail: string | null;
+  status: "pending" | "granted" | "denied";
+  createdAt: string;
+}
+
+export async function getMyReferrals(): Promise<ReferralSignup[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("referral_signups")
+    .select("id, referred_email, reward_status, created_at")
+    .eq("referrer_user_id", userId)
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    referredEmail: r.referred_email,
+    status: r.reward_status,
+    createdAt: r.created_at,
+  }));
+}
+
+/** Called at signup time with a ?ref= code from the URL, if present.
+ * Resolves the code to its owner and records the referral. Silently
+ * no-ops if the code doesn't exist — never blocks signup. */
+export async function recordReferralSignup(
+  code: string,
+  referredEmail: string
+): Promise<void> {
+  const supabase = createClient();
+  const { data: codeRow } = await supabase
+    .from("referral_codes")
+    .select("user_id")
+    .eq("code", code)
+    .maybeSingle();
+  if (!codeRow) return;
+
+  await supabase.from("referral_signups").insert({
+    referrer_user_id: codeRow.user_id,
+    referred_email: referredEmail,
+  });
+}
+
+// --- Subscriptions (client-facing, read + create own request) ---
+
+export interface SubscriptionPlanPublic {
+  id: string;
+  name: string;
+  billingPeriod: "monthly" | "quarterly" | "annual";
+  priceInr: number;
+}
+
+export async function getSubscriptionPlans(): Promise<SubscriptionPlanPublic[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("subscription_plans")
+    .select("id, name, billing_period, price_inr")
+    .eq("active", true)
+    .order("sort_order");
+  return (data ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    billingPeriod: p.billing_period,
+    priceInr: Number(p.price_inr),
+  }));
+}
+
+export async function getMySubscription(): Promise<{ planId: string; status: string } | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("user_subscriptions")
+    .select("plan_id, status")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!data) return null;
+  return { planId: data.plan_id, status: data.status };
+}
+
+export async function requestSubscription(planId: string, couponCode?: string): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("user_subscriptions").insert({
+    user_id: userId,
+    plan_id: planId,
+    status: "pending",
+    coupon_used: couponCode || null,
+  });
+}

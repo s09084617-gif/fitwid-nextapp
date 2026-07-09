@@ -1,33 +1,9 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/ui/fade-in";
 import { buttonVariants } from "@/components/ui/button";
-
-const transformations = [
-  {
-    name: "Rahul M.",
-    duration: "16 Weeks",
-    stat: "+8kg Muscle · −12kg Fat",
-    image: "/images/transform-man-tshirt.jpg",
-    quote:
-      "In 16 weeks I went from 78kg to 70kg while actually gaining muscle. The program was insane — but it worked.",
-  },
-  {
-    name: "Priya S.",
-    duration: "20 Weeks",
-    stat: "+5kg Muscle · −14kg Fat",
-    image: "/images/transform-woman-1.jpg",
-    quote:
-      "The weekly check-ins, the nutrition guidance, the accountability — it's a whole system.",
-  },
-  {
-    name: "Karan T.",
-    duration: "14 Weeks",
-    stat: "+10kg Muscle · −8kg Fat",
-    image: "/images/transform-man-tank.jpg",
-    quote: null,
-  },
-];
+import { TRANSFORMATIONS } from "@/lib/transformations-data";
 
 export function Transformations() {
   return (
@@ -45,7 +21,7 @@ export function Transformations() {
         </p>
       </FadeIn>
       <div className="grid sm:grid-cols-3 gap-6">
-        {transformations.map((t, i) => (
+        {TRANSFORMATIONS.map((t, i) => (
           <FadeIn key={t.name} delay={i * 100}>
             <div className="rounded-lg overflow-hidden border border-border bg-surface transition-all duration-300 hover:border-crimson/50 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.35)] h-full flex flex-col">
               <div className="aspect-square relative">
@@ -75,12 +51,15 @@ export function Transformations() {
           </FadeIn>
         ))}
       </div>
-      <FadeIn className="text-center mt-12">
+      <FadeIn className="text-center mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+        <Link href="/transformations" className={buttonVariants({ variant: "outline", size: "lg" })}>
+          View Full Gallery
+        </Link>
         <a
           href="https://wa.me/917015552731"
           target="_blank"
           rel="noopener noreferrer"
-          className={buttonVariants({ variant: "outline", size: "lg" })}
+          className={buttonVariants({ variant: "primary", size: "lg" })}
         >
           Start Your Transformation
         </a>

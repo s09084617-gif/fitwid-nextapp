@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { getPrograms, type ProgramCard } from "@/lib/db/shared-data";
+import { CoachNotesPanel } from "@/components/admin/coach-notes-panel";
 import {
   listClients,
   getClientProgress,
@@ -263,6 +264,8 @@ export default function AdminClientsPage() {
                 </Button>
               </div>
             </Card>
+
+            <CoachNotesPanel clientUserId={selectedId!} />
           </>
         )}
       </div>
