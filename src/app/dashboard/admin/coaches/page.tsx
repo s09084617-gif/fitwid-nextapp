@@ -97,7 +97,7 @@ export default function AdminCoachesPage() {
                   <p className="font-medium">{c.email}</p>
                   <p className="text-xs text-muted">{c.role} · {c.clientCount} assigned clients</p>
                 </div>
-                <button onClick={() => handleRemove(c.userId)} className="text-muted hover:text-danger p-1">
+                <button onClick={() => handleRemove(c.userId)} className="text-muted hover:text-danger p-1" aria-label="Remove coach">
                   <Trash2 size={14} />
                 </button>
               </div>

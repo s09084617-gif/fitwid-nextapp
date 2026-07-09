@@ -120,7 +120,7 @@ export default function AdminSuccessStoriesPage() {
                 <p className="text-sm font-medium">{s.clientName}</p>
                 <p className="text-xs text-muted line-clamp-2">{s.story}</p>
               </div>
-              <button onClick={() => handleDelete(s.id)} className="text-muted hover:text-danger p-1 shrink-0">
+              <button onClick={() => handleDelete(s.id)} className="text-muted hover:text-danger p-1 shrink-0" aria-label="Delete story">
                 <Trash2 size={14} />
               </button>
             </div>

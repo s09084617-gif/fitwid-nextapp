@@ -106,10 +106,10 @@ export function FileManager() {
                   {formatSize(f.sizeBytes)} · {formatDate(f.createdAt)}
                 </p>
               </div>
-              <button onClick={() => handleDownload(f.path)} className="text-muted hover:text-foreground p-1">
+              <button onClick={() => handleDownload(f.path)} className="text-muted hover:text-foreground p-1" aria-label="Download file">
                 <Download size={14} />
               </button>
-              <button onClick={() => handleDelete(f.path)} className="text-muted hover:text-danger p-1">
+              <button onClick={() => handleDelete(f.path)} className="text-muted hover:text-danger p-1" aria-label="Delete file">
                 <Trash2 size={14} />
               </button>
             </div>

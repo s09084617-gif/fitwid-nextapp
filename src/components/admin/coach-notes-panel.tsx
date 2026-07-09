@@ -130,7 +130,7 @@ export function CoachNotesPanel({ clientUserId }: { clientUserId: string }) {
                       <CheckCircle2 size={14} />
                     </button>
                   )}
-                  <button onClick={() => handleDelete(n.id)} className="text-muted hover:text-danger">
+                  <button onClick={() => handleDelete(n.id)} className="text-muted hover:text-danger" aria-label="Delete note">
                     <Trash2 size={14} />
                   </button>
                 </div>

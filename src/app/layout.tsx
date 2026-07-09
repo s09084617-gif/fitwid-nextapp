@@ -3,9 +3,27 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 
 export const metadata: Metadata = {
-  title: "FitWid | Science-Based Coaching",
+  metadataBase: new URL("https://fitwid.fit"),
+  title: {
+    default: "FitWid | Science-Based Coaching",
+    template: "%s | FitWid",
+  },
   description:
-    "FitWid — science-based, progressive overload coaching. InBody-driven programming from I-BLITZ Fitness Club.",
+    "FitWid — science-based, progressive overload coaching. InBody-driven programming from I-BLITZ Fitness Club, Bangalore.",
+  openGraph: {
+    title: "FitWid | Science-Based Coaching",
+    description:
+      "Personalized workouts, nutrition, and InBody-driven coaching from I-BLITZ Fitness Club, Bangalore.",
+    url: "https://fitwid.fit",
+    siteName: "FitWid",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FitWid | Science-Based Coaching",
+    description: "Personalized workouts, nutrition, and InBody-driven coaching.",
+  },
 };
 
 export default function RootLayout({
