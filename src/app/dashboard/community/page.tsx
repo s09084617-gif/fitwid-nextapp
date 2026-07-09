@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { getSuccessStories, type SuccessStory } from "@/lib/db/shared-data";
 import { getLeaderboard, type LeaderboardEntry } from "./actions";
 import { GOAL_LABELS, type TransformationGoal } from "@/lib/transformations-data";
+import { SubmitStoryForm } from "@/components/community/submit-story-form";
 
 export default function CommunityPage() {
   const [stories, setStories] = useState<SuccessStory[]>([]);
@@ -90,6 +91,8 @@ export default function CommunityPage() {
           </div>
         )}
       </div>
+
+      <SubmitStoryForm />
     </div>
   );
 }

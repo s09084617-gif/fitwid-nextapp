@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { recordReferralSignup } from "@/lib/db/user-data";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GoogleButton } from "@/components/auth/google-button";
+import { InAppBrowserWarning } from "@/components/auth/in-app-browser-warning";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -73,6 +74,7 @@ export default function SignupForm() {
         </>
       }
     >
+      <InAppBrowserWarning />
       <GoogleButton />
       <div className="flex items-center gap-3 my-5">
         <div className="h-px flex-1 bg-border" />

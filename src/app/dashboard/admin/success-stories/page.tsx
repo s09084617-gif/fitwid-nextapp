@@ -1,17 +1,25 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Check, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { getSuccessStories, type SuccessStory } from "@/lib/db/shared-data";
-import { addSuccessStory, deleteSuccessStory } from "./actions";
+import {
+  addSuccessStory,
+  deleteSuccessStory,
+  listPendingStories,
+  approveStory,
+  rejectStory,
+  type PendingStory,
+} from "./actions";
 
 export default function AdminSuccessStoriesPage() {
   const [stories, setStories] = useState<SuccessStory[]>([]);
+  const [pending, setPending] = useState<PendingStory[]>([]);
   const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -24,14 +32,32 @@ export default function AdminSuccessStoriesPage() {
   });
 
   useEffect(() => {
-    getSuccessStories().then((list) => {
+    Promise.all([getSuccessStories(), listPendingStories()]).then(([list, pend]) => {
       setStories(list);
+      setPending(pend);
       setMounted(true);
     });
   }, []);
 
   function refresh() {
-    getSuccessStories().then(setStories);
+    Promise.all([getSuccessStories(), listPendingStories()]).then(([list, pend]) => {
+      setStories(list);
+      setPending(pend);
+    });
+  }
+
+  function handleApprove(id: string) {
+    startTransition(async () => {
+      await approveStory(id);
+      refresh();
+    });
+  }
+
+  function handleReject(id: string) {
+    startTransition(async () => {
+      await rejectStory(id);
+      refresh();
+    });
   }
 
   function handleAdd() {
@@ -67,6 +93,34 @@ export default function AdminSuccessStoriesPage() {
 
   return (
     <div className="space-y-6">
+      <Card>
+        <div className="flex items-center justify-between mb-4">
+          <Badge variant="warning">Pending Submissions</Badge>
+          <span className="text-xs text-muted">{pending.length} awaiting review</span>
+        </div>
+        {pending.length === 0 ? (
+          <p className="text-sm text-muted">No pending submissions from clients right now.</p>
+        ) : (
+          <div className="space-y-3">
+            {pending.map((p) => (
+              <div key={p.id} className="rounded-md border border-warning/30 bg-warning/5 p-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-sm font-medium">{p.clientName}</p>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleApprove(p.id)} className="text-success hover:opacity-70" aria-label="Approve" disabled={isPending}>
+                      <Check size={16} />
+                    </button>
+                    <button onClick={() => handleReject(p.id)} className="text-danger hover:opacity-70" aria-label="Reject" disabled={isPending}>
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-muted">{p.story}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
       <Card>
         <Badge variant="crimson" className="mb-4">Add Success Story</Badge>
         {error && <p className="text-sm text-danger mb-3">{error}</p>}

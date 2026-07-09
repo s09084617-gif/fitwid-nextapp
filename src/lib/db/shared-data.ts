@@ -97,6 +97,7 @@ export async function getSuccessStories(): Promise<SuccessStory[]> {
   const { data, error } = await supabase
     .from("success_stories")
     .select("id, client_name, goal, duration_weeks, story, photo_url, featured")
+    .eq("status", "approved")
     .order("featured", { ascending: false });
 
   if (error || !data) return [];

@@ -780,3 +780,25 @@ export async function getMyLoginSessions(): Promise<LoginSession[]> {
     .limit(20);
   return (data ?? []).map((r) => ({ id: r.id, userAgent: r.user_agent, createdAt: r.created_at }));
 }
+
+// --- Testimonial / Success Story submission (client-facing) ---
+
+export async function submitMySuccessStory(input: {
+  clientName: string;
+  goal: string;
+  durationWeeks?: number;
+  story: string;
+}): Promise<string | null> {
+  const userId = await requireUserId();
+  if (!userId) return "Not signed in.";
+  const supabase = createClient();
+  const { error } = await supabase.from("success_stories").insert({
+    client_name: input.clientName,
+    goal: input.goal,
+    duration_weeks: input.durationWeeks ?? null,
+    story: input.story,
+    status: "pending",
+    submitted_by_user_id: userId,
+  });
+  return error ? error.message : null;
+}
