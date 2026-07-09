@@ -18,6 +18,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(urlError);
   const [loading, setLoading] = useState(false);
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -30,13 +32,74 @@ export default function LoginForm() {
       password,
     });
 
-    setLoading(false);
     if (signInError) {
+      setLoading(false);
       setError(signInError.message);
+      return;
+    }
+
+    // Check if this account has 2FA enrolled — if so, don't complete
+    // login yet; show a code prompt instead.
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    setLoading(false);
+    if (aal?.nextLevel === "aal2" && aal.nextLevel !== aal.currentLevel) {
+      const { data: factors } = await supabase.auth.mfa.listFactors();
+      const totp = factors?.totp?.[0];
+      if (totp) {
+        setMfaFactorId(totp.id);
+        return;
+      }
+    }
+    router.push(redirectTo);
+    router.refresh();
+  }
+
+  async function handleMfaVerify(e: FormEvent) {
+    e.preventDefault();
+    if (!mfaFactorId) return;
+    setError(null);
+    setLoading(true);
+    const supabase = createClient();
+    const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({
+      factorId: mfaFactorId,
+    });
+    if (challengeError) {
+      setLoading(false);
+      setError(challengeError.message);
+      return;
+    }
+    const { error: verifyError } = await supabase.auth.mfa.verify({
+      factorId: mfaFactorId,
+      challengeId: challenge.id,
+      code: mfaCode,
+    });
+    setLoading(false);
+    if (verifyError) {
+      setError(verifyError.message);
       return;
     }
     router.push(redirectTo);
     router.refresh();
+  }
+
+  if (mfaFactorId) {
+    return (
+      <AuthShell title="Enter your 2FA code" subtitle="Check your authenticator app.">
+        <form onSubmit={handleMfaVerify} className="space-y-4">
+          <Input
+            label="6-digit code"
+            value={mfaCode}
+            onChange={(e) => setMfaCode(e.target.value)}
+            placeholder="123456"
+            required
+          />
+          {error && <p className="text-sm text-danger">{error}</p>}
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Verifying…" : "Verify"}
+          </Button>
+        </form>
+      </AuthShell>
+    );
   }
 
   return (

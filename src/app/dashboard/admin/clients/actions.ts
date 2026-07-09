@@ -3,20 +3,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminEmail, getMyCoachRole } from "@/lib/admin";
+import { logAuditEvent } from "@/lib/audit";
 
 /** Returns the caller's user id if they're the owner or an added coach;
  * throws otherwise. Non-owner coaches get client lists scoped to their
  * own assigned clients only (enforced in listClients below). */
-async function assertAdminOrCoach(): Promise<{ userId: string; isOwner: boolean }> {
+async function assertAdminOrCoach(): Promise<{ userId: string; email: string; isOwner: boolean }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const isOwner = isAdminEmail(user?.email);
-  if (isOwner) return { userId: user!.id, isOwner: true };
+  if (isOwner) return { userId: user!.id, email: user!.email!, isOwner: true };
   const role = await getMyCoachRole(user?.id);
   if (!role) throw new Error("Not authorized");
-  return { userId: user!.id, isOwner: false };
+  return { userId: user!.id, email: user!.email!, isOwner: false };
 }
 
 export interface ClientSummary {
@@ -127,7 +128,7 @@ export async function upsertClientAssignment(
   assignedProgram: string,
   coachNotes: string
 ): Promise<void> {
-  await assertAdminOrCoach();
+  const { email } = await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
@@ -136,6 +137,13 @@ export async function upsertClientAssignment(
     assigned_program: assignedProgram || null,
     coach_notes: coachNotes || null,
     updated_at: new Date().toISOString(),
+  });
+  await logAuditEvent({
+    actorEmail: email,
+    action: "update_client_assignment",
+    targetType: "client",
+    targetId: userId,
+    details: { assignedProgram, coachNotesChanged: true },
   });
 }
 

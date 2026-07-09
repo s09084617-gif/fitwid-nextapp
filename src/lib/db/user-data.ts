@@ -749,3 +749,34 @@ export async function updateMyPhoneNumber(phone: string): Promise<void> {
     phone_number: phone,
   });
 }
+
+// --- Device Management (lightweight session log, not a full auth audit) ---
+
+export interface LoginSession {
+  id: string;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+export async function recordLoginSession(): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("login_sessions").insert({
+    user_id: userId,
+    user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+  });
+}
+
+export async function getMyLoginSessions(): Promise<LoginSession[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("login_sessions")
+    .select("id, user_agent, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+  return (data ?? []).map((r) => ({ id: r.id, userAgent: r.user_agent, createdAt: r.created_at }));
+}

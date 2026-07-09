@@ -9,6 +9,8 @@ const TABS = [
   { href: "/dashboard/admin/clients", label: "Clients", ownerOnly: false },
   { href: "/dashboard/admin/insights", label: "Insights", ownerOnly: false },
   { href: "/dashboard/admin/coaches", label: "Coaches", ownerOnly: true },
+  { href: "/dashboard/admin/audit-log", label: "Audit Log", ownerOnly: true },
+  { href: "/dashboard/admin/backup", label: "Backup", ownerOnly: true },
   { href: "/dashboard/admin/users", label: "Users", ownerOnly: true },
   { href: "/dashboard/admin/programs", label: "Programs", ownerOnly: true },
   { href: "/dashboard/admin/exercises", label: "Exercises", ownerOnly: true },

@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminEmail, getMyCoachRole } from "@/lib/admin";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Welcome } from "@/components/dashboard/welcome";
 import { DashboardNav } from "@/components/dashboard/dashboard-nav";
+import { SessionRecorder } from "@/components/settings/session-recorder";
 
 export default async function DashboardLayout({
   children,
@@ -27,8 +28,12 @@ export default async function DashboardLayout({
     user.email?.split("@")[0] ??
     "Coach";
 
+  const isOwner = isAdminEmail(user.email);
+  const coachRole = isOwner ? "owner" : await getMyCoachRole(user.id);
+
   return (
     <main className="min-h-screen px-6 py-10">
+      <SessionRecorder />
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Welcome name={name} />
@@ -38,7 +43,7 @@ export default async function DashboardLayout({
           </div>
         </div>
 
-        <DashboardNav isAdmin={isAdminEmail(user.email)} />
+        <DashboardNav isAdmin={!!coachRole} />
 
         {children}
       </div>

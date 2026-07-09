@@ -3,13 +3,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin";
+import { logAuditEvent } from "@/lib/audit";
 
-async function assertAdmin() {
+async function assertAdmin(): Promise<string> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!isAdminEmail(user?.email)) throw new Error("Not authorized");
+  return user!.email!;
 }
 
 export interface Plan {
@@ -123,8 +125,15 @@ export async function listSubscriptionRequests(): Promise<PendingSubscription[]>
 }
 
 export async function updateSubscriptionStatus(id: string, status: "active" | "cancelled" | "pending") {
-  await assertAdmin();
+  const actorEmail = await assertAdmin();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
   await admin.from("user_subscriptions").update({ status }).eq("id", id);
+  await logAuditEvent({
+    actorEmail,
+    action: "update_subscription_status",
+    targetType: "subscription",
+    targetId: id,
+    details: { status },
+  });
 }

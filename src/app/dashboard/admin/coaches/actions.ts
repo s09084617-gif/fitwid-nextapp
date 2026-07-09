@@ -3,14 +3,16 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { isAdminEmail } from "@/lib/admin";
+import { logAuditEvent } from "@/lib/audit";
 
 /** Only the owner (isAdminEmail allowlist) can manage other coaches. */
-async function assertOwner() {
+async function assertOwner(): Promise<string> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!isAdminEmail(user?.email)) throw new Error("Owner access only");
+  return user!.email!;
 }
 
 export interface CoachInfo {
@@ -48,7 +50,7 @@ export async function listCoaches(): Promise<CoachInfo[]> {
 }
 
 export async function addCoachByEmail(email: string, role: "coach" | "assistant") {
-  await assertOwner();
+  const actorEmail = await assertOwner();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
@@ -57,21 +59,41 @@ export async function addCoachByEmail(email: string, role: "coach" | "assistant"
   if (!user) throw new Error("No registered user found with that email — they need to sign up first.");
 
   await admin.from("coaches").upsert({ user_id: user.id, role });
+  await logAuditEvent({
+    actorEmail,
+    action: "add_coach",
+    targetType: "coach",
+    targetId: user.id,
+    details: { email, role },
+  });
 }
 
 export async function removeCoach(userId: string) {
-  await assertOwner();
+  const actorEmail = await assertOwner();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
   await admin.from("coaches").delete().eq("user_id", userId);
+  await logAuditEvent({
+    actorEmail,
+    action: "remove_coach",
+    targetType: "coach",
+    targetId: userId,
+  });
 }
 
 export async function assignClientToCoach(clientUserId: string, coachUserId: string | null) {
-  await assertOwner();
+  const actorEmail = await assertOwner();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
   await admin.from("client_assignments").upsert({
     user_id: clientUserId,
     assigned_coach_id: coachUserId,
+  });
+  await logAuditEvent({
+    actorEmail,
+    action: "assign_client_to_coach",
+    targetType: "client",
+    targetId: clientUserId,
+    details: { coachUserId },
   });
 }
