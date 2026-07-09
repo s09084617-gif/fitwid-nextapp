@@ -404,3 +404,78 @@ export async function getMyAssignment(): Promise<ClientAssignment | null> {
     updatedAt: data.updated_at,
   };
 }
+
+// --- Onboarding ---
+
+export interface ParqAnswers {
+  heartCondition: boolean;
+  chestPainActivity: boolean;
+  chestPainRest: boolean;
+  dizziness: boolean;
+  boneJoint: boolean;
+  bloodPressureMeds: boolean;
+  otherReason: boolean;
+}
+
+export interface OnboardingResponse {
+  goal?: string;
+  activityLevel?: string;
+  sleepHours?: number;
+  stressLevel?: string;
+  dietPreference?: string;
+  consentAccepted: boolean;
+  parqAnswers?: ParqAnswers;
+  parqFlagged: boolean;
+  completedAt: string | null;
+}
+
+export async function getOnboardingStatus(): Promise<OnboardingResponse | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("onboarding_responses")
+    .select("*")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    goal: data.goal ?? undefined,
+    activityLevel: data.activity_level ?? undefined,
+    sleepHours: data.sleep_hours ?? undefined,
+    stressLevel: data.stress_level ?? undefined,
+    dietPreference: data.diet_preference ?? undefined,
+    consentAccepted: data.consent_accepted,
+    parqAnswers: data.parq_answers ?? undefined,
+    parqFlagged: data.parq_flagged,
+    completedAt: data.completed_at,
+  };
+}
+
+export async function saveOnboardingResponse(input: {
+  goal: string;
+  activityLevel: string;
+  sleepHours: number;
+  stressLevel: string;
+  dietPreference: string;
+  consentAccepted: boolean;
+  parqAnswers: ParqAnswers;
+  parqFlagged: boolean;
+}): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("onboarding_responses").upsert({
+    user_id: userId,
+    goal: input.goal,
+    activity_level: input.activityLevel,
+    sleep_hours: input.sleepHours,
+    stress_level: input.stressLevel,
+    diet_preference: input.dietPreference,
+    consent_accepted: input.consentAccepted,
+    consent_accepted_at: input.consentAccepted ? new Date().toISOString() : null,
+    parq_answers: input.parqAnswers,
+    parq_flagged: input.parqFlagged,
+    completed_at: new Date().toISOString(),
+  });
+}

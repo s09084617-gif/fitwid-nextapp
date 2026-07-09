@@ -60,5 +60,34 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Onboarding gate: new clients must complete the wizard before reaching
+  // the rest of the dashboard. Skipped for the onboarding page itself and
+  // for the admin/coach section (coaches don't go through client onboarding).
+  const path = request.nextUrl.pathname;
+  const needsOnboardingCheck =
+    isProtected &&
+    user &&
+    path.startsWith("/dashboard") &&
+    path !== "/dashboard/onboarding" &&
+    !path.startsWith("/dashboard/admin");
+
+  if (needsOnboardingCheck) {
+    try {
+      const { data } = await supabase
+        .from("onboarding_responses")
+        .select("completed_at")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (!data?.completed_at) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard/onboarding";
+        return NextResponse.redirect(url);
+      }
+    } catch {
+      // Table might not exist yet if the migration hasn't been run —
+      // fail open rather than blocking the whole dashboard.
+    }
+  }
+
   return response;
 }

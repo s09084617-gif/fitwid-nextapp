@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -37,6 +37,13 @@ const actions = [
     label: "Track Progress",
     desc: "Log weight, measurements & progress photos",
     href: "/dashboard/progress",
+    external: false,
+  },
+  {
+    icon: Bot,
+    label: "Ask AI Coach",
+    desc: "Workout, nutrition & recovery Q&A",
+    href: "/dashboard/coach",
     external: false,
   },
   {

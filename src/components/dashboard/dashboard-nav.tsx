@@ -10,6 +10,7 @@ const TABS = [
   { href: "/dashboard/exercises", label: "Exercises" },
   { href: "/dashboard/nutrition", label: "Nutrition" },
   { href: "/dashboard/progress", label: "Progress" },
+  { href: "/dashboard/coach", label: "AI Coach" },
 ];
 
 export function DashboardNav({ isAdmin = false }: { isAdmin?: boolean }) {
