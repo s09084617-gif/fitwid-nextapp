@@ -2,16 +2,21 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminEmail, getMyCoachRole } from "@/lib/admin";
 
-async function assertAdmin() {
+/** Returns the caller's user id if they're the owner or an added coach;
+ * throws otherwise. Non-owner coaches get client lists scoped to their
+ * own assigned clients only (enforced in listClients below). */
+async function assertAdminOrCoach(): Promise<{ userId: string; isOwner: boolean }> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!isAdminEmail(user?.email)) {
-    throw new Error("Not authorized");
-  }
+  const isOwner = isAdminEmail(user?.email);
+  if (isOwner) return { userId: user!.id, isOwner: true };
+  const role = await getMyCoachRole(user?.id);
+  if (!role) throw new Error("Not authorized");
+  return { userId: user!.id, isOwner: false };
 }
 
 export interface ClientSummary {
@@ -22,14 +27,24 @@ export interface ClientSummary {
 }
 
 export async function listClients(): Promise<ClientSummary[]> {
-  await assertAdmin();
+  const { userId, isOwner } = await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
   const { data, error } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
   if (error) throw new Error(error.message);
 
+  let allowedIds: Set<string> | null = null;
+  if (!isOwner) {
+    const { data: assignments } = await admin
+      .from("client_assignments")
+      .select("user_id")
+      .eq("assigned_coach_id", userId);
+    allowedIds = new Set((assignments ?? []).map((a) => a.user_id));
+  }
+
   return data.users
+    .filter((u) => !allowedIds || allowedIds.has(u.id))
     .map((u) => ({
       id: u.id,
       email: u.email ?? "—",
@@ -53,7 +68,7 @@ export interface ClientProgress {
 }
 
 export async function getClientProgress(userId: string): Promise<ClientProgress> {
-  await assertAdmin();
+  await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
@@ -87,22 +102,23 @@ export async function getClientProgress(userId: string): Promise<ClientProgress>
 export interface ClientAssignmentAdmin {
   assignedProgram: string;
   coachNotes: string;
+  phoneNumber: string | null;
 }
 
 export async function getClientAssignment(userId: string): Promise<ClientAssignmentAdmin> {
-  await assertAdmin();
+  await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
-  const { data } = await admin
-    .from("client_assignments")
-    .select("assigned_program, coach_notes")
-    .eq("user_id", userId)
-    .maybeSingle();
+  const [assignmentRes, onboardingRes] = await Promise.all([
+    admin.from("client_assignments").select("assigned_program, coach_notes").eq("user_id", userId).maybeSingle(),
+    admin.from("onboarding_responses").select("phone_number").eq("user_id", userId).maybeSingle(),
+  ]);
 
   return {
-    assignedProgram: data?.assigned_program ?? "",
-    coachNotes: data?.coach_notes ?? "",
+    assignedProgram: assignmentRes.data?.assigned_program ?? "",
+    coachNotes: assignmentRes.data?.coach_notes ?? "",
+    phoneNumber: onboardingRes.data?.phone_number ?? null,
   };
 }
 
@@ -111,7 +127,7 @@ export async function upsertClientAssignment(
   assignedProgram: string,
   coachNotes: string
 ): Promise<void> {
-  await assertAdmin();
+  await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 
@@ -132,7 +148,7 @@ export interface ClientExportData {
 }
 
 export async function getClientExportData(userId: string): Promise<ClientExportData> {
-  await assertAdmin();
+  await assertAdminOrCoach();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3, Trophy, Bell, Gift, FolderOpen, CreditCard, Users } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3, Trophy, Bell, Gift, FolderOpen, CreditCard, Users, Lightbulb, Settings } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -100,6 +100,20 @@ const actions = [
     label: "File Manager",
     desc: "Upload InBody & blood test reports",
     href: "/dashboard/files",
+    external: false,
+  },
+  {
+    icon: Lightbulb,
+    label: "AI Insights",
+    desc: "Auto-detected plateaus, adherence & recovery flags",
+    href: "/dashboard/insights",
+    external: false,
+  },
+  {
+    icon: Settings,
+    label: "Settings",
+    desc: "Add your WhatsApp number for coach messages",
+    href: "/dashboard/settings",
     external: false,
   },
   {

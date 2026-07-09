@@ -5,23 +5,26 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { href: "/dashboard/admin/coach-dashboard", label: "Dashboard" },
-  { href: "/dashboard/admin/clients", label: "Clients" },
-  { href: "/dashboard/admin/users", label: "Users" },
-  { href: "/dashboard/admin/programs", label: "Programs" },
-  { href: "/dashboard/admin/exercises", label: "Exercises" },
-  { href: "/dashboard/admin/success-stories", label: "Success Stories" },
-  { href: "/dashboard/admin/subscriptions", label: "Subscriptions" },
-  { href: "/dashboard/admin/analytics", label: "Analytics" },
-  { href: "/dashboard/admin/payments", label: "Payments" },
+  { href: "/dashboard/admin/coach-dashboard", label: "Dashboard", ownerOnly: false },
+  { href: "/dashboard/admin/clients", label: "Clients", ownerOnly: false },
+  { href: "/dashboard/admin/insights", label: "Insights", ownerOnly: false },
+  { href: "/dashboard/admin/coaches", label: "Coaches", ownerOnly: true },
+  { href: "/dashboard/admin/users", label: "Users", ownerOnly: true },
+  { href: "/dashboard/admin/programs", label: "Programs", ownerOnly: true },
+  { href: "/dashboard/admin/exercises", label: "Exercises", ownerOnly: true },
+  { href: "/dashboard/admin/success-stories", label: "Success Stories", ownerOnly: true },
+  { href: "/dashboard/admin/subscriptions", label: "Subscriptions", ownerOnly: true },
+  { href: "/dashboard/admin/analytics", label: "Analytics", ownerOnly: true },
+  { href: "/dashboard/admin/payments", label: "Payments", ownerOnly: true },
 ];
 
-export function AdminNav() {
+export function AdminNav({ isOwner = true }: { isOwner?: boolean }) {
   const pathname = usePathname();
+  const tabs = TABS.filter((t) => isOwner || !t.ownerOnly);
 
   return (
     <nav className="flex flex-wrap gap-1.5">
-      {TABS.map((tab) => {
+      {tabs.map((tab) => {
         const active = pathname?.startsWith(tab.href);
         return (
           <Link

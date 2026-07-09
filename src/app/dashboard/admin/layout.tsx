@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { isAdminEmail } from "@/lib/admin";
+import { isAdminEmail, getMyCoachRole } from "@/lib/admin";
 import { Badge } from "@/components/ui/badge";
 import { AdminNav } from "@/components/admin/admin-nav";
 
@@ -14,9 +14,12 @@ export default async function AdminLayout({
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isOwner = isAdminEmail(user?.email);
+  const coachRole = isOwner ? "owner" : await getMyCoachRole(user?.id);
+
   // The parent /dashboard layout already requires login; this adds an
-  // email-allowlist check on top since there's no roles table yet.
-  if (!isAdminEmail(user?.email)) {
+  // owner-allowlist OR coaches-table check on top.
+  if (!isOwner && !coachRole) {
     redirect("/dashboard");
   }
 
@@ -24,11 +27,11 @@ export default async function AdminLayout({
     <div className="space-y-6">
       <div>
         <Badge variant="gold" className="mb-2">
-          Admin Only
+          {isOwner ? "Admin Only" : "Coach Access"}
         </Badge>
         <h1 className="font-display text-3xl">Admin Panel</h1>
       </div>
-      <AdminNav />
+      <AdminNav isOwner={isOwner} />
       {children}
     </div>
   );

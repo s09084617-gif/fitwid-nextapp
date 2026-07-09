@@ -725,3 +725,27 @@ export async function requestSubscription(planId: string, couponCode?: string): 
     coupon_used: couponCode || null,
   });
 }
+
+// --- Settings: Phone Number (for WhatsApp integration) ---
+
+export async function getMyPhoneNumber(): Promise<string | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("onboarding_responses")
+    .select("phone_number")
+    .eq("user_id", userId)
+    .maybeSingle();
+  return data?.phone_number ?? null;
+}
+
+export async function updateMyPhoneNumber(phone: string): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("onboarding_responses").upsert({
+    user_id: userId,
+    phone_number: phone,
+  });
+}

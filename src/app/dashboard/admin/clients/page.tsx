@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Search, User, Download, Save } from "lucide-react";
+import { Search, User, Download, Save, MessageCircle } from "lucide-react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { getPrograms, type ProgramCard } from "@/lib/db/shared-data";
 import { CoachNotesPanel } from "@/components/admin/coach-notes-panel";
+import { buildWhatsAppTemplate, toWaMeLink, type WhatsAppTemplateType } from "@/lib/whatsapp";
 import {
   listClients,
   getClientProgress,
@@ -42,6 +43,7 @@ export default function AdminClientsPage() {
   const [progress, setProgress] = useState<ClientProgress | null>(null);
   const [assignedProgram, setAssignedProgram] = useState("");
   const [coachNotes, setCoachNotes] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -70,6 +72,7 @@ export default function AdminClientsPage() {
         setProgress(p);
         setAssignedProgram(a.assignedProgram);
         setCoachNotes(a.coachNotes);
+        setPhoneNumber(a.phoneNumber);
       } catch (e) {
         setError(e instanceof Error ? e.message : "Failed to load client details");
       }
@@ -263,6 +266,39 @@ export default function AdminClientsPage() {
                   <Save size={14} /> {saved ? "Saved ✓" : "Save & Send Update"}
                 </Button>
               </div>
+            </Card>
+
+            <Card>
+              <div className="flex items-center gap-2 mb-2">
+                <MessageCircle size={16} className="text-success" />
+                <Badge variant="success">WhatsApp Templates</Badge>
+              </div>
+              {phoneNumber ? (
+                <div className="grid sm:grid-cols-2 gap-2">
+                  {([
+                    ["appointment_reminder", "Appointment Reminder"],
+                    ["workout_notification", "Workout Notification"],
+                    ["progress_checkin", "Progress Check-In"],
+                    ["coach_message", "Blank Message"],
+                  ] as [WhatsAppTemplateType, string][]).map(([type, label]) => (
+                    <a
+                      key={type}
+                      href={toWaMeLink(phoneNumber, buildWhatsAppTemplate(type, { name: selected.email.split("@")[0] }))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-md border border-border px-3 py-2 text-sm text-center hover:border-success/50 transition"
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </div>
+              ) : (
+                <CardDescription>
+                  This client hasn&apos;t added a phone number in Settings
+                  yet, so there&apos;s no way to message them directly on
+                  WhatsApp.
+                </CardDescription>
+              )}
             </Card>
 
             <CoachNotesPanel clientUserId={selectedId!} />
