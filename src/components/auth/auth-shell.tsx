@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Logo } from "@/components/layout/logo";
 
 export function AuthShell({
@@ -15,6 +16,15 @@ export function AuthShell({
 }) {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
+      <Image
+        src="/images/coach-fitwid-walking.png"
+        alt=""
+        fill
+        aria-hidden="true"
+        sizes="100vw"
+        className="object-cover object-top opacity-[0.14] pointer-events-none"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background to-background" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,16,46,0.12),transparent_60%)]" />
       <Link href="/" className="relative mb-8">
         <Logo size="lg" />

@@ -3,6 +3,7 @@ import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/sections/hero";
 import { Features } from "@/components/sections/features";
 import { Coach } from "@/components/sections/coach";
+import { Philosophy } from "@/components/sections/philosophy";
 import { Trust } from "@/components/sections/trust";
 import { Programs } from "@/components/sections/programs";
 import { Transformations } from "@/components/sections/transformations";
@@ -41,6 +42,7 @@ export default function Home() {
         <Hero />
         <Features />
         <Coach />
+        <Philosophy />
         <Trust />
         <Programs />
         <Transformations />

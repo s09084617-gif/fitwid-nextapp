@@ -19,11 +19,13 @@ export const metadata: Metadata = {
     siteName: "FitWid",
     locale: "en_IN",
     type: "website",
+    images: ["/images/fitwid-brand-poster-1.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "FitWid | Science-Based Coaching",
     description: "Personalized workouts, nutrition, and InBody-driven coaching.",
+    images: ["/images/fitwid-brand-poster-1.png"],
   },
 };
 
