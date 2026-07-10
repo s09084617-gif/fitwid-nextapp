@@ -98,6 +98,7 @@ export interface PendingSubscription {
   status: string;
   couponUsed: string | null;
   createdAt: string;
+  endsAt: string | null;
 }
 
 export async function listSubscriptionRequests(): Promise<PendingSubscription[]> {
@@ -121,6 +122,7 @@ export async function listSubscriptionRequests(): Promise<PendingSubscription[]>
     status: s.status,
     couponUsed: s.coupon_used,
     createdAt: s.created_at,
+    endsAt: s.ends_at,
   }));
 }
 
@@ -128,7 +130,30 @@ export async function updateSubscriptionStatus(id: string, status: "active" | "c
   const actorEmail = await assertAdmin();
   const admin = createAdminClient();
   if (!admin) throw new Error("SUPABASE_SERVICE_ROLE_KEY not configured");
-  await admin.from("user_subscriptions").update({ status }).eq("id", id);
+
+  const updates: Record<string, unknown> = { status };
+
+  if (status === "active") {
+    const { data: sub } = await admin
+      .from("user_subscriptions")
+      .select("plan_id")
+      .eq("id", id)
+      .maybeSingle();
+    const { data: plan } = sub?.plan_id
+      ? await admin.from("subscription_plans").select("billing_period").eq("id", sub.plan_id).maybeSingle()
+      : { data: null };
+
+    const start = new Date();
+    const end = new Date(start);
+    if (plan?.billing_period === "quarterly") end.setMonth(end.getMonth() + 3);
+    else if (plan?.billing_period === "annual") end.setFullYear(end.getFullYear() + 1);
+    else end.setMonth(end.getMonth() + 1); // monthly, or unknown period defaults to monthly
+
+    updates.starts_at = start.toISOString().slice(0, 10);
+    updates.ends_at = end.toISOString().slice(0, 10);
+  }
+
+  await admin.from("user_subscriptions").update(updates).eq("id", id);
   await logAuditEvent({
     actorEmail,
     action: "update_subscription_status",

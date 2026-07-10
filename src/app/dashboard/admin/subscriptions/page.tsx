@@ -124,7 +124,10 @@ export default function AdminSubscriptionsPage() {
           <div className="space-y-2">
             {requests.map((r) => (
               <div key={r.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2 text-sm">
-                <span>{r.email} — {r.planName}{r.couponUsed ? ` (${r.couponUsed})` : ""}</span>
+                <span>
+                  {r.email} — {r.planName}{r.couponUsed ? ` (${r.couponUsed})` : ""}
+                  {r.status === "active" && r.endsAt && ` · renews ${r.endsAt}`}
+                </span>
                 <Select value={r.status} onChange={(e) => startTransition(async () => { await updateSubscriptionStatus(r.id, e.target.value as "active" | "cancelled" | "pending"); refreshAll(); })}>
                   <option value="pending">Pending</option>
                   <option value="active">Active</option>

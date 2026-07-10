@@ -44,3 +44,13 @@ export function nutritionUpdateEmail(summary: string) {
     <p style="color: #ccc; line-height: 1.6;">${summary}</p>
   `);
 }
+
+export function appointmentReminderEmail(title: string, date: string) {
+  return baseLayout(`
+    <h1 style="font-size: 22px; margin: 0 0 12px;">Upcoming Session Tomorrow</h1>
+    <p style="color: #ccc; line-height: 1.6;">
+      Reminder: <strong>${title}</strong> is scheduled for ${date}.
+      See you then!
+    </p>
+  `);
+}

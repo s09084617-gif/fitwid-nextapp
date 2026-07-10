@@ -18,6 +18,14 @@
     {
       "path": "/api/cron/weekly-emails",
       "schedule": "0 9 * * 1"
+    },
+    {
+      "path": "/api/cron/renewal-reminders",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/appointment-reminders",
+      "schedule": "0 18 * * *"
     }
   ]
 }
