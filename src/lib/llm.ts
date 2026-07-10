@@ -55,7 +55,11 @@ export async function callLLM(input: {
         ?.filter((c: { type: string }) => c.type === "text")
         .map((c: { text: string }) => c.text)
         .join("\n");
-      return { text: text ?? "Couldn't generate a response.", provider: "anthropic" };
+      if (!text) {
+        console.error("Anthropic returned no usable text:", JSON.stringify(data));
+        return { error: "The AI didn't return a usable response. Try rephrasing your question." };
+      }
+      return { text, provider: "anthropic" };
     } catch (err) {
       console.error("Anthropic call failed:", err);
       return { error: "The AI is having trouble responding right now. Try again shortly." };
@@ -96,7 +100,11 @@ export async function callLLM(input: {
       }
       const data = await response.json();
       const text = data.choices?.[0]?.message?.content;
-      return { text: text ?? "Couldn't generate a response.", provider: "openrouter" };
+      if (!text) {
+        console.error("OpenRouter returned no usable text:", JSON.stringify(data));
+        return { error: "The AI didn't return a usable response. Try rephrasing your question." };
+      }
+      return { text, provider: "openrouter" };
     } catch (err) {
       console.error("OpenRouter call failed:", err);
       return { error: "The AI is having trouble responding right now. Try again shortly." };
