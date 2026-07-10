@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/layout/logo";
 
 export function AuthShell({
   title,
@@ -15,11 +16,8 @@ export function AuthShell({
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(200,16,46,0.12),transparent_60%)]" />
-      <Link
-        href="/"
-        className="relative font-display text-3xl tracking-wide mb-8"
-      >
-        FIT<span className="text-crimson">WID</span>
+      <Link href="/" className="relative mb-8">
+        <Logo size="lg" />
       </Link>
       <div className="relative w-full max-w-sm rounded-lg border border-border bg-surface p-8">
         <h1 className="font-display text-2xl mb-1">{title}</h1>

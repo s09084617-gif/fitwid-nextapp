@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Camera, MessageCircle, MapPin } from "lucide-react";
+import { Logo } from "@/components/layout/logo";
 
 const columns = [
   {
@@ -33,9 +34,9 @@ export function Footer() {
     <footer className="border-t border-border px-6 pt-16 pb-8">
       <div className="max-w-5xl mx-auto grid sm:grid-cols-5 gap-10">
         <div className="sm:col-span-2">
-          <p className="font-display text-2xl tracking-wide mb-3">
-            FIT<span className="text-crimson">WID</span>
-          </p>
+          <div className="mb-3">
+            <Logo size="sm" />
+          </div>
           <p className="text-sm text-muted max-w-xs mb-4">
             Science-based coaching from I-BLITZ Fitness Club, Bangalore.
             Data-driven programming, real accountability.

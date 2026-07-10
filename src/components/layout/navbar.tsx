@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -22,8 +23,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
-        <a href="#" className="font-display text-2xl tracking-wide shrink-0">
-          FIT<span className="text-crimson">WID</span>
+        <a href="#" className="shrink-0">
+          <Logo size="sm" />
         </a>
 
         <ul className="hidden lg:flex items-center gap-6 text-sm text-muted">

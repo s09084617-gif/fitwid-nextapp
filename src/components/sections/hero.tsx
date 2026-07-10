@@ -13,7 +13,9 @@ export function Hero() {
   return (
     <section className="flex flex-col">
       <div className="relative min-h-[100svh] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-        {/* Background photo */}
+        {/* Background photo — blurred cover fill behind, full uncropped
+            image on top, so the complete photo is always visible instead
+            of being cropped to fill the frame. */}
         <div className="absolute inset-0">
           <Image
             src="/images/hero-collage.jpg"
@@ -21,7 +23,16 @@ export function Hero() {
             fill
             priority
             sizes="100vw"
-            className="object-cover object-center"
+            aria-hidden="true"
+            className="object-cover object-center scale-110 blur-2xl opacity-60"
+          />
+          <Image
+            src="/images/hero-collage.jpg"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-contain object-center"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/60" />
           <div className="absolute inset-0 bg-background/30" />
