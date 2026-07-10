@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { FadeIn } from "@/components/ui/fade-in";
+import { Reveal, RevealStagger, RevealItem } from "@/components/ui/motion";
+import { BladeDivider } from "@/components/ui/blade-divider";
 
 const faqs = [
   {
@@ -32,12 +33,10 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section
-      id="faq"
-      className="border-t border-border px-6 py-28 sm:py-32 bg-surface/40"
-    >
-      <div className="max-w-3xl mx-auto">
-        <FadeIn className="text-center mb-16">
+    <section id="faq" className="w-full bg-surface/40">
+      <BladeDivider />
+      <div className="max-w-3xl mx-auto px-6 py-20 sm:py-32">
+        <Reveal className="text-center mb-14 sm:mb-16">
           <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
             Questions
           </p>
@@ -47,47 +46,45 @@ export function FAQ() {
           <p className="text-muted">
             Still have questions? Message us directly on WhatsApp.
           </p>
-        </FadeIn>
-        <div className="space-y-3">
+        </Reveal>
+        <RevealStagger className="space-y-3" staggerDelay={0.06}>
           {faqs.map((item, i) => {
             const isOpen = openIndex === i;
             return (
-              <FadeIn key={item.q} delay={i * 50}>
-              <div
-                className="rounded-lg border border-border glass overflow-hidden"
-              >
-                <button
-                  type="button"
-                  className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
-                  aria-expanded={isOpen}
-                  onClick={() => setOpenIndex(isOpen ? null : i)}
-                >
-                  <span className="font-medium text-sm sm:text-base">
-                    {item.q}
-                  </span>
-                  <ChevronDown
-                    size={18}
+              <RevealItem key={item.q}>
+                <div className="rounded-lg border border-border glass overflow-hidden">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+                    aria-expanded={isOpen}
+                    onClick={() => setOpenIndex(isOpen ? null : i)}
+                  >
+                    <span className="font-medium text-sm sm:text-base">
+                      {item.q}
+                    </span>
+                    <ChevronDown
+                      size={18}
+                      className={cn(
+                        "shrink-0 text-muted transition-transform duration-300",
+                        isOpen && "rotate-180 text-crimson"
+                      )}
+                    />
+                  </button>
+                  <div
                     className={cn(
-                      "shrink-0 text-muted transition-transform",
-                      isOpen && "rotate-180 text-crimson"
+                      "grid transition-[grid-template-rows] duration-300",
+                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                     )}
-                  />
-                </button>
-                <div
-                  className={cn(
-                    "grid transition-[grid-template-rows] duration-300",
-                    isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                  )}
-                >
-                  <div className="overflow-hidden">
-                    <p className="px-5 pb-4 text-sm text-muted">{item.a}</p>
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-5 pb-4 text-sm text-muted leading-relaxed">{item.a}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-              </FadeIn>
+              </RevealItem>
             );
           })}
-        </div>
+        </RevealStagger>
       </div>
     </section>
   );

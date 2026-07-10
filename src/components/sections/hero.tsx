@@ -1,13 +1,25 @@
-import Image from "next/image";
-import { buttonVariants } from "@/components/ui/button";
-import { CountUp } from "@/components/ui/count-up";
+"use client";
 
-const stats: { value: number; suffix: string; label: string }[] = [
-  { value: 200, suffix: "+", label: "Clients Coached" },
-  { value: 7, suffix: "+", label: "Years Experience" },
-  { value: 4, suffix: "", label: "InBody Metrics Tracked" },
-  { value: 100, suffix: "%", label: "Progressive Overload" },
+import Image from "next/image";
+import { motion, type Variants } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+
+const stats: { value: string; label: string }[] = [
+  { value: "200+", label: "Clients Coached" },
+  { value: "07", label: "Years Experience" },
+  { value: "04", label: "InBody Metrics Tracked" },
+  { value: "100%", label: "Progressive Overload" },
 ];
+
+const container: Variants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+};
+const item: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] } },
+};
 
 export function Hero() {
   return (
@@ -39,21 +51,44 @@ export function Hero() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(10,10,10,0.7),transparent_70%)]" />
         </div>
 
-        {/* Animated red glow */}
+        {/* Ambient red glow */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(204,0,0,0.3),transparent_60%)] animate-pulse [animation-duration:4s]" />
 
-        <div className="relative z-10 max-w-3xl">
-          <p className="text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-6">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={container}
+          className="relative z-10 max-w-3xl"
+        >
+          <motion.p
+            variants={item}
+            className="text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-6"
+          >
             I-BLITZ Fitness Club × FitWid
-          </p>
-          <h1 className="font-display text-5xl sm:text-7xl tracking-wide leading-[1.05] mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.8)]">
+          </motion.p>
+
+          <motion.h1
+            variants={item}
+            className="font-display text-[2.75rem] leading-[1.05] sm:text-7xl tracking-wide mb-6 [text-shadow:0_2px_20px_rgba(0,0,0,0.8)]"
+          >
             Transform Your Body with{" "}
-            <span className="text-crimson">Science</span>, Not Guesswork
-          </h1>
-          <p className="max-w-xl mx-auto text-muted text-base sm:text-lg mb-10">
+            <span className="font-logo text-crimson tracking-normal">
+              Science
+            </span>
+            , Not Guesswork
+          </motion.h1>
+
+          <motion.p
+            variants={item}
+            className="max-w-xl mx-auto text-muted text-base sm:text-lg mb-10"
+          >
             Personalized workouts, nutrition, and InBody-driven coaching.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          </motion.p>
+
+          <motion.div
+            variants={item}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
             <a
               href="/assessment"
               className={buttonVariants({ variant: "primary", size: "lg" })}
@@ -66,21 +101,37 @@ export function Hero() {
             >
               View Transformations
             </a>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+        >
+          <ChevronDown size={20} className="text-muted animate-bounce [animation-duration:2s]" />
+        </motion.div>
       </div>
 
       <div className="border-y border-border glass">
         <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 divide-x divide-border">
-          {stats.map((s) => (
-            <div key={s.label} className="px-4 py-8 text-center">
-              <div className="font-display text-3xl sm:text-4xl text-gold">
-                <CountUp value={s.value} suffix={s.suffix} />
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="px-4 py-8 text-center"
+            >
+              <div className="font-mono font-bold text-2xl sm:text-3xl text-gold tabular-nums">
+                {s.value}
               </div>
-              <div className="text-xs sm:text-sm text-muted mt-1">
+              <div className="text-[11px] sm:text-xs text-muted mt-1.5 uppercase tracking-wide">
                 {s.label}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

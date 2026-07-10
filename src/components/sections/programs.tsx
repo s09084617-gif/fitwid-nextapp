@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FadeIn } from "@/components/ui/fade-in";
+import { RevealStagger, RevealItem, Reveal } from "@/components/ui/motion";
+import { BladeDivider } from "@/components/ui/blade-divider";
 import { getPrograms, DEFAULT_PROGRAMS, type ProgramCard } from "@/lib/db/shared-data";
 
 export function Programs() {
@@ -14,12 +15,10 @@ export function Programs() {
   }, []);
 
   return (
-    <section
-      id="programs"
-      className="border-t border-border bg-surface/40 px-6 py-28 sm:py-32"
-    >
-      <div className="max-w-5xl mx-auto">
-        <FadeIn className="text-center mb-16">
+    <section id="programs" className="w-full bg-surface/40">
+      <BladeDivider />
+      <div className="max-w-5xl mx-auto px-6 py-20 sm:py-32">
+        <Reveal className="text-center mb-14 sm:mb-16">
           <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
             Choose Your Path
           </p>
@@ -30,20 +29,23 @@ export function Programs() {
             Every plan starts with an InBody scan, then gets built around
             what your body actually needs.
           </p>
-        </FadeIn>
-        <div className="grid sm:grid-cols-3 gap-6">
-          {programs.map((p, i) => (
-            <FadeIn key={p.id} delay={i * 80}>
-              <Card glass className="h-full">
+        </Reveal>
+        <RevealStagger className="grid sm:grid-cols-3 gap-6">
+          {programs.map((p) => (
+            <RevealItem key={p.id}>
+              <Card
+                glass
+                className="h-full transition-all duration-300 hover:-translate-y-1 hover:border-crimson/40"
+              >
                 <Badge variant={p.variant} className="mb-3">
                   {p.badge}
                 </Badge>
                 <CardTitle>{p.title}</CardTitle>
                 <CardDescription>{p.desc}</CardDescription>
               </Card>
-            </FadeIn>
+            </RevealItem>
           ))}
-        </div>
+        </RevealStagger>
       </div>
     </section>
   );

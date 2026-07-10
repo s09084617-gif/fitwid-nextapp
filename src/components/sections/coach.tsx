@@ -2,6 +2,7 @@ import Image from "next/image";
 import { CheckCircle2 } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { FadeIn } from "@/components/ui/fade-in";
+import { BladeDivider } from "@/components/ui/blade-divider";
 
 const credentials = [
   "200+ clients coached to real results",
@@ -12,7 +13,9 @@ const credentials = [
 
 export function Coach() {
   return (
-    <section className="border-t border-border px-6 py-28 sm:py-32">
+    <section className="w-full">
+      <BladeDivider />
+      <div className="px-6 py-20 sm:py-32">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <FadeIn className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto md:mx-0">
           <Image
@@ -53,6 +56,7 @@ export function Coach() {
             Talk to Sahil
           </a>
         </FadeIn>
+      </div>
       </div>
     </section>
   );

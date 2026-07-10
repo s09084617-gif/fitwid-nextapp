@@ -1,11 +1,14 @@
 import Image from "next/image";
 import { FadeIn } from "@/components/ui/fade-in";
+import { BladeDivider } from "@/components/ui/blade-divider";
 
 const PILLARS = ["Discipline", "Consistency", "Transformation"];
 
 export function Philosophy() {
   return (
-    <section className="border-t border-border px-6 py-28 sm:py-32 bg-surface/40">
+    <section className="w-full bg-surface/40">
+      <BladeDivider />
+      <div className="px-6 py-20 sm:py-32">
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <FadeIn className="order-2 md:order-1">
           <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
@@ -40,6 +43,7 @@ export function Philosophy() {
             className="object-cover"
           />
         </FadeIn>
+      </div>
       </div>
     </section>
   );

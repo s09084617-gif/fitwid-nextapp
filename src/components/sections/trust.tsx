@@ -1,6 +1,7 @@
 import { ShieldCheck, Award, Users, Activity } from "lucide-react";
 import { FadeIn } from "@/components/ui/fade-in";
 import { CountUp } from "@/components/ui/count-up";
+import { BladeDivider } from "@/components/ui/blade-divider";
 
 const trustPoints = [
   {
@@ -27,7 +28,9 @@ const trustPoints = [
 
 export function Trust() {
   return (
-    <section className="border-t border-border px-6 py-28 sm:py-32 bg-surface/40">
+    <section className="w-full bg-surface/40">
+      <BladeDivider />
+      <div className="px-6 py-20 sm:py-32">
       <div className="max-w-5xl mx-auto">
         <FadeIn className="text-center mb-16">
           <p className="text-gold tracking-[0.3em] text-xs font-semibold uppercase mb-3">
@@ -72,6 +75,7 @@ export function Trust() {
             </div>
           </div>
         </FadeIn>
+      </div>
       </div>
     </section>
   );
