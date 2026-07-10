@@ -9,6 +9,7 @@ import { Select } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { saveOnboardingResponse, type ParqAnswers } from "@/lib/db/user-data";
+import { InBodyExplainer } from "@/components/inbody/inbody-explainer";
 
 const PARQ_QUESTIONS: { key: keyof ParqAnswers; text: string }[] = [
   { key: "heartCondition", text: "Has a doctor ever said you have a heart condition and that you should only do physical activity recommended by a doctor?" },
@@ -20,7 +21,7 @@ const PARQ_QUESTIONS: { key: keyof ParqAnswers; text: string }[] = [
   { key: "otherReason", text: "Do you know of any other reason why you should not do physical activity?" },
 ];
 
-const STEPS = ["Welcome", "Goal", "Lifestyle", "Health Screening", "Consent"] as const;
+const STEPS = ["Welcome", "Goal", "Lifestyle", "Health Screening", "Consent", "InBody"] as const;
 
 export function OnboardingWizard() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export function OnboardingWizard() {
 
   const parqFlagged = Object.values(parq).some(Boolean);
 
-  async function handleFinish() {
+  async function handleSaveOnboarding() {
     setSubmitting(true);
     await saveOnboardingResponse({
       goal,
@@ -57,6 +58,10 @@ export function OnboardingWizard() {
       parqFlagged,
     });
     setSubmitting(false);
+    setStep(5);
+  }
+
+  function handleEnterDashboard() {
     router.push("/dashboard");
     router.refresh();
   }
@@ -246,12 +251,19 @@ export function OnboardingWizard() {
           <div className="flex justify-between pt-4">
             <Button variant="outline" onClick={() => setStep(3)}>Back</Button>
             <Button
-              onClick={handleFinish}
+              onClick={handleSaveOnboarding}
               disabled={!consentAccepted || submitting}
             >
-              <CheckCircle2 size={16} /> {submitting ? "Saving…" : "Finish & Go to Dashboard"}
+              <CheckCircle2 size={16} /> {submitting ? "Saving…" : "Continue"}
             </Button>
           </div>
+        </div>
+      )}
+
+      {step === 5 && (
+        <div className="space-y-6">
+          <h2 className="font-display text-2xl mb-1">One last thing</h2>
+          <InBodyExplainer onDone={handleEnterDashboard} onSkip={handleEnterDashboard} />
         </div>
       )}
     </Card>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3, Trophy, Bell, Gift, FolderOpen, CreditCard, Users, Lightbulb, Settings } from "lucide-react";
+import { ClipboardList, MessageCircle, Calendar, CalendarDays, Dumbbell, Sparkles, Utensils, TrendingUp, BookOpen, Bot, CheckSquare, BarChart3, Trophy, Bell, Gift, FolderOpen, CreditCard, Users, Lightbulb, Settings, Activity } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -9,6 +9,13 @@ const actions = [
     label: "Take Assessment",
     desc: "Update your BMI, body fat & fitness score",
     href: "/assessment",
+    external: false,
+  },
+  {
+    icon: Activity,
+    label: "InBody Report",
+    desc: "Enter your scan results & get an AI explanation",
+    href: "/dashboard/inbody-report",
     external: false,
   },
   {

@@ -802,3 +802,59 @@ export async function submitMySuccessStory(input: {
   });
   return error ? error.message : null;
 }
+
+// --- InBody Reports ---
+
+export interface InBodyReport {
+  id: string;
+  reportDate: string;
+  weightKg?: number;
+  smmKg?: number;
+  pbfPercent?: number;
+  vfaCm2?: number;
+  ecwTbwRatio?: number;
+  aiExplanation: string | null;
+}
+
+export async function saveInBodyReport(input: {
+  weightKg?: number;
+  smmKg?: number;
+  pbfPercent?: number;
+  vfaCm2?: number;
+  ecwTbwRatio?: number;
+  aiExplanation: string;
+}): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("inbody_reports").insert({
+    user_id: userId,
+    weight_kg: input.weightKg ?? null,
+    smm_kg: input.smmKg ?? null,
+    pbf_percent: input.pbfPercent ?? null,
+    vfa_cm2: input.vfaCm2 ?? null,
+    ecw_tbw_ratio: input.ecwTbwRatio ?? null,
+    ai_explanation: input.aiExplanation,
+  });
+}
+
+export async function getMyInBodyReports(): Promise<InBodyReport[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("inbody_reports")
+    .select("*")
+    .eq("user_id", userId)
+    .order("report_date", { ascending: false });
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    reportDate: r.report_date,
+    weightKg: r.weight_kg ?? undefined,
+    smmKg: r.smm_kg ?? undefined,
+    pbfPercent: r.pbf_percent ?? undefined,
+    vfaCm2: r.vfa_cm2 ?? undefined,
+    ecwTbwRatio: r.ecw_tbw_ratio ?? undefined,
+    aiExplanation: r.ai_explanation,
+  }));
+}
