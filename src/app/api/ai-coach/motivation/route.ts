@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { callLLM } from "@/lib/llm";
 
 function fallbackMessage(stats: {
   workoutsThisWeek: number;
@@ -76,45 +77,21 @@ export async function GET() {
 
   const stats = { workoutsThisWeek, weightChangeKg, streak };
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ message: fallbackMessage(stats), source: "template" });
-  }
-
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
+  const result = await callLLM({
+    system:
+      "You write one short, genuine motivational message (max 2 sentences) for a fitness app user based on their real stats. Be specific to their numbers, not generic. No emojis, no exclamation-mark overload. Sound like a good coach, not a hype account.",
+    messages: [
+      {
+        role: "user",
+        content: `Workouts logged this week: ${stats.workoutsThisWeek}. Current workout streak: ${stats.streak} days. Weight change since they started logging: ${stats.weightChangeKg === null ? "no data yet" : `${stats.weightChangeKg}kg`}.`,
       },
-      body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 100,
-        system:
-          "You write one short, genuine motivational message (max 2 sentences) for a fitness app user based on their real stats. Be specific to their numbers, not generic. No emojis, no exclamation-mark overload. Sound like a good coach, not a hype account.",
-        messages: [
-          {
-            role: "user",
-            content: `Workouts logged this week: ${stats.workoutsThisWeek}. Current workout streak: ${stats.streak} days. Weight change since they started logging: ${stats.weightChangeKg === null ? "no data yet" : `${stats.weightChangeKg}kg`}.`,
-          },
-        ],
-      }),
-    });
+    ],
+    maxTokens: 100,
+  });
 
-    if (!response.ok) {
-      return NextResponse.json({ message: fallbackMessage(stats), source: "template" });
-    }
-
-    const data = await response.json();
-    const text = data.content
-      ?.filter((c: { type: string }) => c.type === "text")
-      .map((c: { text: string }) => c.text)
-      .join(" ");
-
-    return NextResponse.json({ message: text || fallbackMessage(stats), source: "ai" });
-  } catch {
+  if (result === null || "error" in result) {
     return NextResponse.json({ message: fallbackMessage(stats), source: "template" });
   }
+
+  return NextResponse.json({ message: result.text || fallbackMessage(stats), source: "ai" });
 }
