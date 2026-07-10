@@ -16,7 +16,10 @@ export interface LLMResult {
   provider: "anthropic" | "openrouter";
 }
 
-const OPENROUTER_FREE_MODEL = "meta-llama/llama-3.3-70b-instruct:free";
+/** OpenRouter's own auto-router — picks whichever free model is actually
+ * available right now, instead of being stuck on one specific model
+ * whose backend provider might be temporarily congested/rate-limited. */
+const OPENROUTER_FREE_MODEL = "openrouter/free";
 
 export async function callLLM(input: {
   system: string;
@@ -60,8 +63,8 @@ export async function callLLM(input: {
   }
 
   if (openrouterKey) {
-    try {
-      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    async function callOpenRouter() {
+      return fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,6 +76,19 @@ export async function callLLM(input: {
           messages: [{ role: "system", content: input.system }, ...input.messages],
         }),
       });
+    }
+
+    try {
+      let response = await callOpenRouter();
+
+      // Free-tier models occasionally get rate-limited upstream — the
+      // error is explicitly transient, so one short retry is worth it
+      // before giving up and telling the user to try again themselves.
+      if (response.status === 429) {
+        await new Promise((r) => setTimeout(r, 2000));
+        response = await callOpenRouter();
+      }
+
       if (!response.ok) {
         const errText = await response.text();
         console.error("OpenRouter API error:", errText);
