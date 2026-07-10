@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { AssessmentForm } from "@/components/assessment/assessment-form";
+import { AssessmentWizard } from "@/components/assessment/assessment-wizard";
 
 export default function AssessmentPage() {
   return (
@@ -16,12 +16,11 @@ export default function AssessmentPage() {
               AI Body Assessment
             </h1>
             <p className="text-muted max-w-lg mx-auto">
-              Answer a few questions about your body, goals, and lifestyle —
-              get your full metrics, a starter workout, a meal plan, and a
-              90-day roadmap, all in one shot.
+              Five quick steps — get your full metrics, a starter workout, a
+              meal plan, and a 90-day roadmap, all in one shot.
             </p>
           </div>
-          <AssessmentForm />
+          <AssessmentWizard />
         </div>
       </main>
       <Footer />

@@ -29,6 +29,9 @@ export interface MacroTargets {
 const GOAL_ADJUSTMENT: Record<Goal, { calorieDelta: number; proteinPerKg: number }> = {
   fat_loss: { calorieDelta: -500, proteinPerKg: 2.0 },
   muscle_gain: { calorieDelta: 300, proteinPerKg: 1.8 },
+  body_recomposition: { calorieDelta: -250, proteinPerKg: 2.2 },
+  strength: { calorieDelta: 150, proteinPerKg: 1.8 },
+  athletic_performance: { calorieDelta: 0, proteinPerKg: 1.7 },
   maintain: { calorieDelta: 0, proteinPerKg: 1.6 },
 };
 
