@@ -20,6 +20,11 @@ export interface GeneratorFilters {
    * any combination of individual muscles directly instead of a preset
    * category. */
   muscleGroups?: MuscleGroup[];
+  /** Free-text injury notes. Softly deprioritizes (never hard-excludes)
+   * exercises for likely-affected muscle groups — see
+   * musclesToDeprioritize below. Advisory only, not a substitute for a
+   * coach's judgment. */
+  injuries?: string;
 }
 
 export interface WorkoutExercise {
@@ -27,6 +32,10 @@ export interface WorkoutExercise {
   sets: number;
   reps: string;
   restSeconds: number;
+  tempo: string;
+  /** Alternative exercises resolved from the exercise's `alternatives`
+   * ID list into full Exercise objects, for display. */
+  alternativeExercises: Exercise[];
 }
 
 export interface WorkoutPlan {
@@ -36,6 +45,10 @@ export interface WorkoutPlan {
   filters: GeneratorFilters;
   exercises: WorkoutExercise[];
   estimatedMinutes: number;
+  isFavorite?: boolean;
+  /** Present if injury keywords matched — shown as an advisory note, not
+   * a claim that exercises were medically vetted. */
+  injuryNote?: string;
 }
 
 const FOCUS_MUSCLE_MAP: Record<Focus, MuscleGroup[]> = {
@@ -87,14 +100,44 @@ const DIFFICULTY_RANK: Record<Difficulty, number> = {
 
 const GOAL_SCHEME: Record<
   Goal,
-  { sets: number; reps: string; restSeconds: number; label: string }
+  { sets: number; reps: string; restSeconds: number; tempo: string; label: string }
 > = {
-  fat_loss: { sets: 3, reps: "15-20", restSeconds: 30, label: "Fat Loss (circuit style)" },
-  muscle_gain: { sets: 4, reps: "8-12", restSeconds: 75, label: "Muscle Gain (hypertrophy)" },
-  strength: { sets: 5, reps: "3-6", restSeconds: 150, label: "Strength (heavy, low rep)" },
-  endurance: { sets: 3, reps: "20-25", restSeconds: 25, label: "Endurance (high rep)" },
-  athletic_performance: { sets: 4, reps: "5-8", restSeconds: 90, label: "Athletic Performance (power & explosiveness)" },
+  fat_loss: { sets: 3, reps: "15-20", restSeconds: 30, tempo: "2-0-2", label: "Fat Loss (circuit style)" },
+  muscle_gain: { sets: 4, reps: "8-12", restSeconds: 75, tempo: "3-1-1", label: "Muscle Gain (hypertrophy)" },
+  strength: { sets: 5, reps: "3-6", restSeconds: 150, tempo: "4-1-1", label: "Strength (heavy, low rep)" },
+  endurance: { sets: 3, reps: "20-25", restSeconds: 25, tempo: "2-0-2", label: "Endurance (high rep)" },
+  athletic_performance: { sets: 4, reps: "5-8", restSeconds: 90, tempo: "1-0-X", label: "Athletic Performance (power & explosiveness)" },
 };
+
+/** Maps common free-text injury keywords to muscle groups worth
+ * deprioritizing. Deliberately conservative — this softly reorders
+ * exercise selection away from likely-aggravating movements, it never
+ * hard-blocks a muscle group entirely (some exercises for that area are
+ * often still appropriate; a real coach's judgment matters more than a
+ * keyword match). Always shown alongside an explicit disclaimer. */
+const INJURY_KEYWORD_MUSCLES: Record<string, MuscleGroup[]> = {
+  knee: ["quads", "hamstrings", "glutes", "calves"],
+  shoulder: ["shoulders", "chest", "triceps"],
+  back: ["back", "hamstrings", "glutes"],
+  spine: ["back"],
+  wrist: ["chest", "triceps", "shoulders", "biceps"],
+  elbow: ["biceps", "triceps"],
+  ankle: ["calves", "quads"],
+  hip: ["glutes", "quads", "hamstrings"],
+  neck: ["shoulders", "back"],
+};
+
+function musclesToDeprioritize(injuries: string | undefined): Set<MuscleGroup> {
+  const flagged = new Set<MuscleGroup>();
+  if (!injuries) return flagged;
+  const lower = injuries.toLowerCase();
+  for (const [keyword, muscles] of Object.entries(INJURY_KEYWORD_MUSCLES)) {
+    if (lower.includes(keyword)) {
+      muscles.forEach((m) => flagged.add(m));
+    }
+  }
+  return flagged;
+}
 
 /** Explosive/plyometric exercises prioritized when the goal is athletic performance. */
 const ATHLETIC_PRIORITY_IDS = ["box-jump", "kb-swing-cardio", "kb-swing", "sprint", "burpee", "jump-rope"];
@@ -118,12 +161,14 @@ export function generateWorkout(
   filters: GeneratorFilters,
   customExercises: Exercise[] = []
 ): WorkoutPlan {
-  const { goal, experience, equipment, focus, muscleGroups } = filters;
+  const { goal, experience, equipment, focus, muscleGroups, injuries } = filters;
   const targetMuscles =
     muscleGroups && muscleGroups.length > 0 ? muscleGroups : FOCUS_MUSCLE_MAP[focus];
   const maxDifficulty = DIFFICULTY_RANK[experience];
+  const deprioritized = musclesToDeprioritize(injuries);
 
   const allExercises = [...EXERCISES, ...customExercises];
+  const exerciseById = new Map(allExercises.map((ex) => [ex.id, ex]));
   const pool = allExercises.filter(
     (ex) =>
       targetMuscles.includes(ex.muscleGroup) &&
@@ -134,7 +179,10 @@ export function generateWorkout(
   const targetCount = EXERCISE_COUNT_BY_EXPERIENCE[experience];
 
   // Spread picks across muscle groups first (one per group), then fill
-  // remaining slots randomly from whatever's left in the pool.
+  // remaining slots randomly from whatever's left in the pool. Muscle
+  // groups flagged by injury keywords are pushed to the back of the
+  // group order, so they're the last to get picked (not excluded, since
+  // many exercises for a flagged area are still fine — just deprioritized).
   const selected: Exercise[] = [];
   const byGroup = new Map<MuscleGroup, Exercise[]>();
   for (const ex of shuffle(pool)) {
@@ -142,7 +190,12 @@ export function generateWorkout(
     list.push(ex);
     byGroup.set(ex.muscleGroup, list);
   }
-  for (const group of shuffle(targetMuscles)) {
+  const groupOrder = [...shuffle(targetMuscles)].sort((a, b) => {
+    const aFlagged = deprioritized.has(a) ? 1 : 0;
+    const bFlagged = deprioritized.has(b) ? 1 : 0;
+    return aFlagged - bFlagged;
+  });
+  for (const group of groupOrder) {
     const list = byGroup.get(group);
     if (list && list.length > 0 && selected.length < targetCount) {
       selected.push(list.shift()!);
@@ -176,6 +229,10 @@ export function generateWorkout(
     sets: scheme.sets,
     reps: scheme.reps,
     restSeconds: scheme.restSeconds,
+    tempo: scheme.tempo,
+    alternativeExercises: exercise.alternatives
+      .map((id) => exerciseById.get(id))
+      .filter((ex): ex is Exercise => !!ex),
   }));
 
   const secondsPerSet = 40; // rough time under tension per set
@@ -200,5 +257,57 @@ export function generateWorkout(
     filters,
     exercises: workoutExercises,
     estimatedMinutes,
+    injuryNote:
+      deprioritized.size > 0
+        ? "Exercises for the area(s) you noted were deprioritized where possible, but always stop and check with your coach or a physio if something doesn't feel right."
+        : undefined,
   };
+}
+
+export interface ScheduledDay {
+  dayIndex: number; // 0-based
+  dayLabel: string; // "Day 1", "Day 2", ...
+  focus: Focus;
+  plan: WorkoutPlan;
+}
+
+export interface WeeklySchedule {
+  splitLabel: string;
+  days: ScheduledDay[];
+}
+
+/** Split patterns by training days/week. Rest days aren't listed — the
+ * schedule only contains training days; the UI is responsible for
+ * showing rest days around them. */
+const SPLIT_PATTERNS: Record<number, { label: string; focuses: Focus[] }> = {
+  1: { label: "Full Body (1x/week)", focuses: ["full_body"] },
+  2: { label: "Full Body (2x/week)", focuses: ["full_body", "full_body"] },
+  3: { label: "Full Body (3x/week)", focuses: ["full_body", "full_body", "full_body"] },
+  4: { label: "Upper/Lower Split (4x/week)", focuses: ["upper_body", "lower_body", "upper_body", "lower_body"] },
+  5: { label: "Push/Pull/Legs + Upper/Lower (5x/week)", focuses: ["push", "pull", "legs", "upper_body", "lower_body"] },
+  6: { label: "Push/Pull/Legs x2 (6x/week)", focuses: ["push", "pull", "legs", "push", "pull", "legs"] },
+  7: { label: "Push/Pull/Legs x2 + Full Body (7x/week)", focuses: ["push", "pull", "legs", "push", "pull", "legs", "full_body"] },
+};
+
+/** Generates a full week's training schedule — one WorkoutPlan per
+ * training day, following a split pattern appropriate to how many days
+ * the person trains. Each day reuses generateWorkout() so exercise
+ * selection, tempo, and injury-awareness all work exactly the same as a
+ * single-day plan. */
+export function generateWeeklySchedule(
+  filters: Omit<GeneratorFilters, "focus" | "muscleGroups">,
+  daysPerWeek: number,
+  customExercises: Exercise[] = []
+): WeeklySchedule {
+  const clampedDays = Math.min(7, Math.max(1, Math.round(daysPerWeek)));
+  const pattern = SPLIT_PATTERNS[clampedDays];
+
+  const days: ScheduledDay[] = pattern.focuses.map((focus, i) => ({
+    dayIndex: i,
+    dayLabel: `Day ${i + 1}`,
+    focus,
+    plan: generateWorkout({ ...filters, focus }, customExercises),
+  }));
+
+  return { splitLabel: pattern.label, days };
 }

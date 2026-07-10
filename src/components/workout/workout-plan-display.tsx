@@ -1,25 +1,34 @@
-import { Clock, Dumbbell } from "lucide-react";
+"use client";
+
+import { Clock, Dumbbell, Printer, Star, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ExerciseDetailCard } from "@/components/workout/exercise-detail-card";
 import type { WorkoutPlan } from "@/lib/workout-generator";
 
 export function WorkoutPlanDisplay({
   plan,
   onSave,
   onRegenerate,
+  onToggleFavorite,
   saved,
 }: {
   plan: WorkoutPlan;
   onSave?: () => void;
   onRegenerate?: () => void;
+  onToggleFavorite?: () => void;
   saved?: boolean;
 }) {
+  function handlePrint() {
+    window.print();
+  }
+
   return (
-    <Card>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <Card className="print:border-none print:shadow-none print:p-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 print:mb-4">
         <div>
-          <Badge variant="crimson" className="mb-2">
+          <Badge variant="crimson" className="mb-2 print:hidden">
             Generated Workout
           </Badge>
           <h3 className="font-display text-2xl">{plan.title}</h3>
@@ -29,21 +38,44 @@ export function WorkoutPlanDisplay({
             exercises
           </p>
         </div>
-        {(onSave || onRegenerate) && (
-          <div className="flex gap-2 shrink-0">
-            {onRegenerate && (
-              <Button variant="outline" size="sm" onClick={onRegenerate}>
-                Regenerate
-              </Button>
-            )}
-            {onSave && (
-              <Button variant="gold" size="sm" onClick={onSave} disabled={saved}>
-                {saved ? "Saved ✓" : "Save Workout"}
-              </Button>
-            )}
-          </div>
-        )}
+        <div className="flex gap-2 shrink-0 print:hidden">
+          <button
+            type="button"
+            onClick={handlePrint}
+            title="Print or save as PDF"
+            className="rounded-md border border-border px-3 py-1.5 text-sm text-muted hover:text-foreground hover:border-crimson/50 transition flex items-center gap-1.5"
+          >
+            <Printer size={14} /> Print / PDF
+          </button>
+          {onToggleFavorite && (
+            <button
+              type="button"
+              onClick={onToggleFavorite}
+              title={plan.isFavorite ? "Remove from favorites" : "Add to favorites"}
+              className="rounded-md border border-border px-3 py-1.5 text-sm text-muted hover:text-gold hover:border-gold/50 transition"
+            >
+              <Star size={14} className={plan.isFavorite ? "fill-gold text-gold" : ""} />
+            </button>
+          )}
+          {onRegenerate && (
+            <Button variant="outline" size="sm" onClick={onRegenerate}>
+              Regenerate
+            </Button>
+          )}
+          {onSave && (
+            <Button variant="gold" size="sm" onClick={onSave} disabled={saved}>
+              {saved ? "Saved ✓" : "Save Workout"}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {plan.injuryNote && (
+        <div className="flex items-start gap-2.5 rounded-md border border-warning/30 bg-warning/5 px-3 py-2.5 mb-4 print:hidden">
+          <AlertTriangle size={14} className="text-warning shrink-0 mt-0.5" />
+          <p className="text-xs text-foreground/90">{plan.injuryNote}</p>
+        </div>
+      )}
 
       {plan.exercises.length === 0 ? (
         <p className="text-sm text-muted">
@@ -53,24 +85,7 @@ export function WorkoutPlanDisplay({
       ) : (
         <div className="space-y-3">
           {plan.exercises.map((we, i) => (
-            <div
-              key={we.exercise.id}
-              className="flex items-start gap-4 rounded-md border border-border p-4"
-            >
-              <div className="h-8 w-8 rounded-full bg-crimson/15 border border-crimson/30 flex items-center justify-center shrink-0 font-display text-sm text-crimson">
-                {i + 1}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">{we.exercise.name}</p>
-                <p className="text-xs text-muted mt-0.5">{we.exercise.cue}</p>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-sm font-medium">
-                  {we.sets} × {we.reps}
-                </p>
-                <p className="text-xs text-muted">{we.restSeconds}s rest</p>
-              </div>
-            </div>
+            <ExerciseDetailCard key={we.exercise.id} we={we} index={i} />
           ))}
         </div>
       )}

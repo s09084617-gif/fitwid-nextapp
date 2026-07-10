@@ -104,3 +104,22 @@ body {
     transition: none;
   }
 }
+
+/* Print styles — used by the Workout Generator's Print/PDF button.
+   Hides app chrome and forces light, ink-friendly colors so a printed
+   (or "Save as PDF") workout is actually readable on paper. */
+@media print {
+  nav,
+  header,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+  * {
+    box-shadow: none !important;
+  }
+}

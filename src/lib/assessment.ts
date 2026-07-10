@@ -1,3 +1,5 @@
+import type { Difficulty, Equipment } from "@/lib/workout-data";
+
 export type Gender = "male" | "female";
 export type ActivityLevel =
   | "sedentary"
@@ -51,6 +53,10 @@ export interface AssessmentInput {
   medicalConditions?: string[]; // empty/["none"] means no conditions noted
   injuries?: string; // free text — advisory only, never used to modify the plan automatically
   inbody?: InBodyScanInput;
+  // Carried through into profileSnapshot for reuse by the Workout
+  // Generator later — not used in any BMI/BMR/body-fat math here.
+  experience?: Difficulty;
+  equipment?: Equipment[];
 }
 
 export interface MacroBreakdown {
@@ -91,6 +97,21 @@ export interface AssessmentResult {
   visceralFatLevel?: number;
   waistHipRatio?: number;
   inbodyScore?: number;
+  /** Full snapshot of the inputs behind this assessment — lets other
+   * features (like the Workout Generator) pull real personalization data
+   * from Supabase later instead of asking the user to re-enter it. */
+  profileSnapshot: {
+    goal: Goal;
+    gender: Gender;
+    age: number;
+    heightCm: number;
+    weightKg: number;
+    activityLevel: ActivityLevel;
+    injuries?: string;
+    experience?: Difficulty;
+    equipment?: Equipment[];
+    workoutDaysPerWeek?: number;
+  };
   recommendations: {
     dailyCalories: number;
     proteinGrams: number;
@@ -413,7 +434,7 @@ function buildRecommendations(
   };
 }
 
-function buildRecommendedSplit(goal: Goal, daysPerWeek: number | undefined): string {
+export function buildRecommendedSplit(goal: Goal, daysPerWeek: number | undefined): string {
   const days = daysPerWeek ?? 4;
   if (days <= 3) return "Full Body (3x/week)";
   if (days === 4) {
@@ -483,6 +504,18 @@ export function runAssessment(input: AssessmentInput): AssessmentResult {
     visceralFatLevel: input.inbody?.visceralFatLevel,
     waistHipRatio: input.inbody?.waistHipRatio,
     inbodyScore: input.inbody?.inbodyScore,
+    profileSnapshot: {
+      goal: input.goal,
+      gender: input.gender,
+      age: input.age,
+      heightCm: input.heightCm,
+      weightKg: input.weightKg,
+      activityLevel: input.activityLevel,
+      injuries: input.injuries,
+      experience: input.experience,
+      equipment: input.equipment,
+      workoutDaysPerWeek: input.workoutDaysPerWeek,
+    },
     hasMedicalFlag,
     recommendations: buildRecommendations(input, macros, bmiCat, bfCat),
   };

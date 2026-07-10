@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2, ChevronDown } from "lucide-react";
+import { Trash2, ChevronDown, Star } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getSavedWorkouts, deleteWorkout } from "@/lib/db/user-data";
+import { ExerciseDetailCard } from "@/components/workout/exercise-detail-card";
+import { getSavedWorkouts, deleteWorkout, toggleFavoriteWorkout } from "@/lib/db/user-data";
 import type { WorkoutPlan } from "@/lib/workout-generator";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +13,7 @@ export function SavedWorkouts() {
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [favoritesOnly, setFavoritesOnly] = useState(false);
 
   useEffect(() => {
     function refresh() {
@@ -29,29 +31,45 @@ export function SavedWorkouts() {
     deleteWorkout(id).then(setWorkouts);
   }
 
+  function handleToggleFavorite(w: WorkoutPlan) {
+    toggleFavoriteWorkout(w.id, !w.isFavorite).then(setWorkouts);
+  }
+
   if (!mounted) return null;
+
+  const visible = favoritesOnly ? workouts.filter((w) => w.isFavorite) : workouts;
 
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
         <Badge variant="gold">Saved Workouts</Badge>
-        <span className="text-xs text-muted">{workouts.length} saved</span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setFavoritesOnly((v) => !v)}
+            className={cn(
+              "text-xs flex items-center gap-1 px-2.5 py-1 rounded-full border transition",
+              favoritesOnly ? "border-gold text-gold bg-gold/10" : "border-border text-muted"
+            )}
+          >
+            <Star size={11} className={favoritesOnly ? "fill-gold" : ""} /> Favorites
+          </button>
+          <span className="text-xs text-muted">{visible.length} shown</span>
+        </div>
       </div>
 
-      {workouts.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="text-sm text-muted">
-          No saved workouts yet — generate one above and hit &ldquo;Save
-          Workout&rdquo;.
+          {favoritesOnly
+            ? "No favorites yet — star a saved workout to pin it here."
+            : "No saved workouts yet — generate one above and hit \u201cSave Workout\u201d."}
         </p>
       ) : (
         <div className="space-y-2">
-          {workouts.map((w) => {
+          {visible.map((w) => {
             const isOpen = openId === w.id;
             return (
-              <div
-                key={w.id}
-                className="rounded-md border border-border overflow-hidden"
-              >
+              <div key={w.id} className="rounded-md border border-border overflow-hidden">
                 <div className="flex items-center gap-2 px-4 py-3">
                   <button
                     type="button"
@@ -79,6 +97,14 @@ export function SavedWorkouts() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => handleToggleFavorite(w)}
+                    className="shrink-0 text-muted hover:text-gold transition p-1"
+                    aria-label={w.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                  >
+                    <Star size={16} className={w.isFavorite ? "fill-gold text-gold" : ""} />
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => handleDelete(w.id)}
                     className="shrink-0 text-muted hover:text-danger transition p-1"
                     aria-label="Delete workout"
@@ -89,17 +115,7 @@ export function SavedWorkouts() {
                 {isOpen && (
                   <div className="border-t border-border px-4 py-3 space-y-2 bg-surface-2/50">
                     {w.exercises.map((we, i) => (
-                      <div
-                        key={we.exercise.id}
-                        className="flex items-center justify-between text-sm"
-                      >
-                        <span className="text-foreground/90">
-                          {i + 1}. {we.exercise.name}
-                        </span>
-                        <span className="text-muted text-xs shrink-0 ml-2">
-                          {we.sets} × {we.reps}
-                        </span>
-                      </div>
+                      <ExerciseDetailCard key={we.exercise.id} we={we} index={i} />
                     ))}
                   </div>
                 )}

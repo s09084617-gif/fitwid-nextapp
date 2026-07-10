@@ -7,8 +7,10 @@ export default function DashboardWorkoutsPage() {
       <div>
         <h1 className="font-display text-3xl mb-2">Workout Generator</h1>
         <p className="text-sm text-muted">
-          Pick your goal, experience level, and equipment — get a workout in
-          seconds. Regenerate for variety, save the ones you like.
+          Personalized using your Body Assessment data where available —
+          goal, experience, equipment, and injuries. Generate a single
+          session or a full weekly schedule, save your favorites, and
+          print or save as PDF.
         </p>
       </div>
 

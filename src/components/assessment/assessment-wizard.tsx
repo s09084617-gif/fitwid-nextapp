@@ -147,6 +147,8 @@ export function AssessmentWizard() {
       waterIntakeLiters: form.waterIntakeLiters ? Number(form.waterIntakeLiters) : undefined,
       medicalConditions: form.medicalConditions,
       injuries: form.injuries,
+      experience: form.experience,
+      equipment: form.equipment,
       inbody: hasInBody
         ? {
             weightKg: form.inbody.weightKg ? Number(form.inbody.weightKg) : undefined,

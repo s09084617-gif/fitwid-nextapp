@@ -149,7 +149,7 @@ export async function getSavedWorkouts(): Promise<WorkoutPlan[]> {
   const supabase = createClient();
   const { data } = await supabase
     .from("saved_workouts")
-    .select("id, title, filters, exercises, estimated_minutes, created_at")
+    .select("id, title, filters, exercises, estimated_minutes, created_at, is_favorite")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
   return (data ?? []).map((r) => ({
@@ -159,6 +159,7 @@ export async function getSavedWorkouts(): Promise<WorkoutPlan[]> {
     exercises: r.exercises,
     estimatedMinutes: r.estimated_minutes,
     createdAt: r.created_at,
+    isFavorite: r.is_favorite ?? false,
   })) as WorkoutPlan[];
 }
 
@@ -182,6 +183,18 @@ export async function deleteWorkout(id: string): Promise<WorkoutPlan[]> {
   if (!userId) return [];
   const supabase = createClient();
   await supabase.from("saved_workouts").delete().eq("user_id", userId).eq("id", id);
+  return getSavedWorkouts();
+}
+
+export async function toggleFavoriteWorkout(id: string, isFavorite: boolean): Promise<WorkoutPlan[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  await supabase
+    .from("saved_workouts")
+    .update({ is_favorite: isFavorite })
+    .eq("user_id", userId)
+    .eq("id", id);
   return getSavedWorkouts();
 }
 
@@ -857,4 +870,29 @@ export async function getMyInBodyReports(): Promise<InBodyReport[]> {
     ecwTbwRatio: r.ecw_tbw_ratio ?? undefined,
     aiExplanation: r.ai_explanation,
   }));
+}
+
+// --- Profile snapshot (for Workout Generator personalization) ---
+
+export interface ProfileSnapshot {
+  goal: string;
+  gender: string;
+  age: number;
+  heightCm: number;
+  weightKg: number;
+  activityLevel: string;
+  injuries?: string;
+  experience?: string;
+  equipment?: string[];
+  workoutDaysPerWeek?: number;
+}
+
+/** Pulls the goal/gender/age/height/weight/experience/equipment/injuries/
+ * activity level/workout-days data from the user's most recent Body
+ * Assessment, so the Workout Generator can personalize without asking
+ * the user to re-enter everything. Returns null if they've never taken
+ * an assessment, or took one before this field existed. */
+export async function getMyProfileSnapshot(): Promise<ProfileSnapshot | null> {
+  const last = await getLastAssessment();
+  return last?.result.profileSnapshot ?? null;
 }
