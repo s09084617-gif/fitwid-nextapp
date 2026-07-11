@@ -1,6 +1,8 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Hero } from "@/components/sections/hero";
+import { WhyChooseFitwid } from "@/components/sections/why-choose-fitwid";
+import { HowItWorks } from "@/components/sections/how-it-works";
 import { Features } from "@/components/sections/features";
 import { Coach } from "@/components/sections/coach";
 import { Philosophy } from "@/components/sections/philosophy";
@@ -40,6 +42,8 @@ export default function Home() {
       <Navbar />
       <main className="flex-1 flex flex-col pb-16 md:pb-0">
         <Hero />
+        <WhyChooseFitwid />
+        <HowItWorks />
         <Features />
         <Coach />
         <Philosophy />

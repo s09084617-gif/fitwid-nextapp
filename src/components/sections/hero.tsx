@@ -93,7 +93,7 @@ export function Hero() {
               href="/assessment"
               className={buttonVariants({ variant: "primary", size: "lg" })}
             >
-              Start Free Assessment
+              Start Free AI Body Assessment
             </a>
             <a
               href="#transformations"

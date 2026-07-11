@@ -11,7 +11,7 @@ export function StickyMobileCta() {
         href="/assessment"
         className={cn(buttonVariants({ variant: "primary", size: "lg" }), "w-full")}
       >
-        Start Free Assessment
+        Start Free AI Body Assessment
       </a>
     </div>
   );
