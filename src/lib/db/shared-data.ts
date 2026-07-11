@@ -112,3 +112,14 @@ export async function getSuccessStories(): Promise<SuccessStory[]> {
     featured: r.featured,
   }));
 }
+
+export interface BlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  content: string;
+  category: string;
+  coverImage: string | null;
+  publishedAt: string;
+}

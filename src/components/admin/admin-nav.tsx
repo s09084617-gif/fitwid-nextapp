@@ -15,6 +15,7 @@ const TABS = [
   { href: "/dashboard/admin/programs", label: "Programs", ownerOnly: true },
   { href: "/dashboard/admin/exercises", label: "Exercises", ownerOnly: true },
   { href: "/dashboard/admin/success-stories", label: "Success Stories", ownerOnly: true },
+  { href: "/dashboard/admin/blog", label: "Blog", ownerOnly: true },
   { href: "/dashboard/admin/subscriptions", label: "Subscriptions", ownerOnly: true },
   { href: "/dashboard/admin/analytics", label: "Analytics", ownerOnly: true },
   { href: "/dashboard/admin/payments", label: "Payments", ownerOnly: true },

@@ -35,7 +35,9 @@ export function Coach() {
             Sahil Bansal
           </h2>
           <p className="text-muted mb-6">
-            Founder of I-BLITZ Fitness Club and FitWid. Every program is
+            Founder of I-BLITZ Fitness Club, a gym in Bangalore, and creator
+            of FitWid — the digital coaching platform that brings his
+            in-person coaching methodology online. Every program is
             built on real InBody data — not guesswork — so you always know
             exactly what&apos;s changing in your body and why.
           </p>

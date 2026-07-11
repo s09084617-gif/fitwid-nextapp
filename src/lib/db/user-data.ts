@@ -1124,3 +1124,21 @@ export async function getNutritionLogsForDate(logDate: string): Promise<Nutritio
     fatG: Number(r.fat_g),
   }));
 }
+
+// --- Lead Magnet Opt-ins ---
+
+export async function submitLeadMagnetOptIn(input: {
+  email: string;
+  whatsapp?: string;
+  magnet: string;
+  source?: string;
+}): Promise<string | null> {
+  const supabase = createClient();
+  const { error } = await supabase.from("leads").insert({
+    email: input.email.trim(),
+    whatsapp: input.whatsapp?.trim() || null,
+    magnet: input.magnet,
+    source: input.source ?? "homepage",
+  });
+  return error ? error.message : null;
+}

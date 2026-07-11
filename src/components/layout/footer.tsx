@@ -14,6 +14,7 @@ const columns = [
       { label: "Programs", href: "#programs" },
       { label: "Pricing", href: "#pricing" },
       { label: "FAQ", href: "#faq" },
+      { label: "Blog", href: "/blog" },
     ],
   },
   {

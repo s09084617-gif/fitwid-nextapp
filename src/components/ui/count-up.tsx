@@ -12,7 +12,12 @@ export function CountUp({
   duration?: number;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(0);
+  // null = "not animating" -> render the real value directly. This means
+  // the server-rendered HTML (and any pre-hydration paint) always shows
+  // the correct number, never a placeholder 0 — the count-up is a pure
+  // visual enhancement once JS actually runs, not something the real
+  // value depends on.
+  const [display, setDisplay] = useState<number | null>(null);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
@@ -49,7 +54,7 @@ export function CountUp({
 
   return (
     <span ref={ref}>
-      {display}
+      {display === null ? value : display}
       {suffix}
     </span>
   );

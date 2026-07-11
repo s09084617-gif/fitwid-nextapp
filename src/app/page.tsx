@@ -10,6 +10,7 @@ import { Trust } from "@/components/sections/trust";
 import { Programs } from "@/components/sections/programs";
 import { Transformations } from "@/components/sections/transformations";
 import { Testimonials } from "@/components/sections/testimonials";
+import { LeadMagnet } from "@/components/sections/lead-magnet";
 import { Pricing } from "@/components/sections/pricing";
 import { FAQ } from "@/components/sections/faq";
 import { StickyMobileCta } from "@/components/sections/sticky-mobile-cta";
@@ -53,6 +54,7 @@ export default function Home() {
         <Programs />
         <Transformations />
         <Testimonials />
+        <LeadMagnet />
         <Pricing />
         <FAQ />
       </main>

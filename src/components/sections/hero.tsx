@@ -64,7 +64,7 @@ export function Hero() {
             variants={item}
             className="text-gold tracking-[0.3em] text-xs sm:text-sm font-semibold uppercase mb-6"
           >
-            I-BLITZ Fitness Club × FitWid
+            FitWid, by I-BLITZ Fitness Club
           </motion.p>
 
           <motion.h1
