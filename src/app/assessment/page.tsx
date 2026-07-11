@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { FloatingWhatsApp } from "@/components/shared/floating-whatsapp";
 import { AssessmentWizard } from "@/components/assessment/assessment-wizard";
 
 export default function AssessmentPage() {
@@ -24,6 +25,7 @@ export default function AssessmentPage() {
         </div>
       </main>
       <Footer />
+      <FloatingWhatsApp />
     </>
   );
 }

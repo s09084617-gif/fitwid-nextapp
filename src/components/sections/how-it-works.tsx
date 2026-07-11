@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { ClipboardCheck, ScanLine, Dumbbell, TrendingUp, ArrowRight } from "lucide-react";
 import { RevealStagger, RevealItem, Reveal } from "@/components/ui/motion";
 import { BladeDivider } from "@/components/ui/blade-divider";
-import { buttonVariants } from "@/components/ui/button";
+import { CtaTrio } from "@/components/shared/cta-trio";
 
 const STEPS = [
   {
@@ -69,12 +68,7 @@ export function HowItWorks() {
         </RevealStagger>
 
         <Reveal className="text-center">
-          <Link
-            href="/assessment"
-            className={buttonVariants({ variant: "primary", size: "lg" })}
-          >
-            Start Free AI Body Assessment
-          </Link>
+          <CtaTrio />
         </Reveal>
       </div>
     </section>

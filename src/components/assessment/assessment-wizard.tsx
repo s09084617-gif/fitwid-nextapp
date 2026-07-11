@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -85,6 +85,10 @@ export function AssessmentWizard() {
   const [result, setResult] = useState<AssessmentResult | null>(null);
   const [workout, setWorkout] = useState<WorkoutPlan | null>(null);
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null);
+
+  useEffect(() => {
+    trackEvent("assessment_started");
+  }, []);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));

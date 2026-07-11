@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { PostHogProvider } from "@/lib/analytics/posthog-provider";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fitwid.fit"),
@@ -35,6 +37,9 @@ export const metadata: Metadata = {
       "Get a free AI Body Assessment and receive personalized workout plans, meal plans, BMI, body fat analysis, and expert fitness coaching with FitWid.",
     images: ["/images/og-banner.jpg"],
   },
+  verification: process.env.NEXT_PUBLIC_GSC_VERIFICATION
+    ? { google: process.env.NEXT_PUBLIC_GSC_VERIFICATION }
+    : undefined,
 };
 
 export default function RootLayout({
@@ -55,6 +60,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans" suppressHydrationWarning>
         <PostHogProvider />
+        <GoogleAnalytics />
+        <MetaPixel />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

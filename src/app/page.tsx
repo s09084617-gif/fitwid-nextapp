@@ -13,6 +13,8 @@ import { Testimonials } from "@/components/sections/testimonials";
 import { Pricing } from "@/components/sections/pricing";
 import { FAQ } from "@/components/sections/faq";
 import { StickyMobileCta } from "@/components/sections/sticky-mobile-cta";
+import { FloatingWhatsApp } from "@/components/shared/floating-whatsapp";
+import { ExitIntentPopup } from "@/components/shared/exit-intent-popup";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -56,6 +58,8 @@ export default function Home() {
       </main>
       <Footer />
       <StickyMobileCta />
+      <FloatingWhatsApp />
+      <ExitIntentPopup />
     </>
   );
 }

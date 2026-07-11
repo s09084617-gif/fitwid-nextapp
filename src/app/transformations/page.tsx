@@ -5,7 +5,9 @@ import Image from "next/image";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { CtaTrio } from "@/components/shared/cta-trio";
+import { FloatingWhatsApp } from "@/components/shared/floating-whatsapp";
+import { StickyMobileCta } from "@/components/sections/sticky-mobile-cta";
 import { TRANSFORMATIONS, GOAL_LABELS, type TransformationGoal } from "@/lib/transformations-data";
 
 const GOALS: (TransformationGoal | "all")[] = ["all", "fat_loss", "muscle_gain", "maintain", "athletic_performance"];
@@ -105,18 +107,13 @@ export default function TransformationsGalleryPage() {
             <p className="text-sm text-muted mb-4">
               Ready to write your own story?
             </p>
-            <a
-              href="https://wa.me/917015552731"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={buttonVariants({ variant: "primary", size: "lg" })}
-            >
-              Start Your Transformation
-            </a>
+            <CtaTrio />
           </div>
         </div>
       </main>
       <Footer />
+      <FloatingWhatsApp />
+      <StickyMobileCta />
     </>
   );
 }
