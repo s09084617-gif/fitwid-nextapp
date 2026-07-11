@@ -70,14 +70,30 @@ export default function CoachDashboardPage() {
       <Card>
         <div className="flex items-center gap-3 mb-4">
           <IndianRupee size={18} className="text-muted" />
-          <Badge variant="warning">Revenue Overview — Not Available</Badge>
+          {data.revenue && data.revenue.paidCount > 0 ? (
+            <Badge variant="success">Revenue Overview</Badge>
+          ) : (
+            <Badge variant="warning">Revenue Overview — No Payments Yet</Badge>
+          )}
         </div>
-        <CardDescription>
-          There&apos;s no payment system connected (Razorpay isn&apos;t set
-          up yet — see the Payments tab), so there&apos;s no real revenue
-          data to show. Showing fabricated numbers here would be actively
-          misleading, so this stays empty until payments are wired up.
-        </CardDescription>
+        {data.revenue && data.revenue.paidCount > 0 ? (
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <p className="font-display text-2xl text-gold">₹{data.revenue.totalInr.toLocaleString("en-IN")}</p>
+              <CardDescription>Total collected (all time)</CardDescription>
+            </div>
+            <div>
+              <p className="font-display text-2xl">₹{data.revenue.last30DaysInr.toLocaleString("en-IN")}</p>
+              <CardDescription>Last 30 days</CardDescription>
+            </div>
+          </div>
+        ) : (
+          <CardDescription>
+            Razorpay is wired up (see the Payments tab for setup), but no
+            client has completed a payment yet — this fills in
+            automatically once they do.
+          </CardDescription>
+        )}
       </Card>
 
       <Card>

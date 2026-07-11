@@ -19,6 +19,7 @@ export interface CoachDashboardData {
   newAssessmentsThisWeek: { email: string; date: string }[];
   pendingCheckIns: { email: string; lastActive: string | null; daysSince: number | null }[];
   mostEngaged: { email: string; workoutsLogged: number }[];
+  revenue: { totalInr: number; last30DaysInr: number; paidCount: number } | null;
 }
 
 export async function getCoachDashboard(): Promise<CoachDashboardData> {
@@ -82,10 +83,28 @@ export async function getCoachDashboard(): Promise<CoachDashboardData> {
     .sort((a, b) => b.workoutsLogged - a.workoutsLogged)
     .slice(0, 10);
 
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const { data: paidTxns } = await admin
+    .from("transactions")
+    .select("amount_inr, created_at")
+    .eq("status", "paid");
+
+  const revenue = paidTxns
+    ? {
+        totalInr: paidTxns.reduce((s, t) => s + Number(t.amount_inr), 0),
+        last30DaysInr: paidTxns
+          .filter((t) => new Date(t.created_at) >= thirtyDaysAgo)
+          .reduce((s, t) => s + Number(t.amount_inr), 0),
+        paidCount: paidTxns.length,
+      }
+    : null;
+
   return {
     activeClientsCount: users.length,
     newAssessmentsThisWeek,
     pendingCheckIns,
     mostEngaged,
+    revenue,
   };
 }
