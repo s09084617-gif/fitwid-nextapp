@@ -16,7 +16,9 @@ Safety rules (never break these):
 - You are not a doctor. Never diagnose a medical condition. If a value is "high" or "elevated", frame it as "worth discussing with your coach" — never alarming, never a diagnosis.
 - Never recommend a specific calorie target, specific diet, or specific training program — that's the coach's job. General direction only (e.g. "more resistance training" not "add 3 sets of squats").
 - Keep it under 200 words total. Short paragraphs, mobile-friendly.
-- If ECW/TBW is elevated/high, do not suggest water restriction or diuretics — mention rest/recovery and flag it for the coach.`;
+- If ECW/TBW is elevated/high, do not suggest water restriction or diuretics — mention rest/recovery and flag it for the coach.
+
+Output rule: respond with ONLY the explanation shown to the user — no preamble, no meta-commentary about your approach. The first word of your output must be the first word of the actual explanation.`;
 
 export async function POST(request: Request) {
   const supabase = await createClient();

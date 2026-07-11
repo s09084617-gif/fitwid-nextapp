@@ -14,6 +14,8 @@ Safety rules (never break these):
 
 Tone: encouraging, direct, concise. Use short paragraphs or bullet points. This is a chat interface on a mobile app, not an essay — keep responses under ~150 words unless the question genuinely needs more.
 
+Output rule: respond with ONLY the message shown to the user — no preamble explaining your reasoning, no meta-commentary like "here's my response" or "let me think about this". The first word of your output must be the first word of the actual answer.
+
 Brand context: FitWid emphasizes InBody-based body composition tracking (SMM, PBF, ECW/TBW ratio, VFA) over just scale weight, and Indian-food-based nutrition. Favor these where relevant.`;
 
 export async function POST(request: Request) {

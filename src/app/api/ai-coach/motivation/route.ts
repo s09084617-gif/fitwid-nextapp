@@ -79,7 +79,8 @@ export async function GET() {
 
   const result = await callLLM({
     system:
-      "You write one short, genuine motivational message (max 2 sentences) for a fitness app user based on their real stats. Be specific to their numbers, not generic. No emojis, no exclamation-mark overload. Sound like a good coach, not a hype account.",
+      "You write one short, genuine motivational message (max 2 sentences) for a fitness app user based on their real stats. Be specific to their numbers, not generic. No emojis, no exclamation-mark overload. Sound like a good coach, not a hype account. " +
+      "Output ONLY the final message itself — no preamble, no explanation of your reasoning, no meta-commentary like 'here's a message' or 'probably something like'. The very first word of your response must be the first word of the actual message shown to the user.",
     messages: [
       {
         role: "user",

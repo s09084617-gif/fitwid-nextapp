@@ -21,6 +21,31 @@ export interface LLMResult {
  * whose backend provider might be temporarily congested/rate-limited. */
 const OPENROUTER_FREE_MODEL = "openrouter/free";
 
+/**
+ * Some free-tier models (routed to via OpenRouter's auto-router) are
+ * "reasoning" models that narrate their thinking process as plain text
+ * instead of returning just the final answer — e.g. "We need to write a
+ * message... probably something like: 'X'". This is a real, observed
+ * failure mode, not theoretical. Strip it defensively:
+ * 1. Remove explicit <think>...</think>-style blocks some models use.
+ * 2. If the text still reads like reasoning (contains "we need to",
+ *    "probably something like", etc.) and there's a quoted string near
+ *    the end, extract just the quote — that's almost always the actual
+ *    intended answer.
+ */
+function stripReasoningLeak(text: string): string {
+  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+
+  const reasoningMarkers = /\b(we need to|i need to|probably something like|that's one sentence|let me|i should|the user wants)\b/i;
+  if (reasoningMarkers.test(cleaned)) {
+    const quoted = cleaned.match(/["“]([^"”]{15,300})["”]/);
+    if (quoted) {
+      cleaned = quoted[1].trim();
+    }
+  }
+  return cleaned;
+}
+
 export async function callLLM(input: {
   system: string;
   messages: LLMMessage[];
@@ -99,9 +124,14 @@ export async function callLLM(input: {
         return { error: "The AI is having trouble responding right now. Try again shortly." };
       }
       const data = await response.json();
-      const text = data.choices?.[0]?.message?.content;
-      if (!text) {
+      const rawText = data.choices?.[0]?.message?.content;
+      if (!rawText) {
         console.error("OpenRouter returned no usable text:", JSON.stringify(data));
+        return { error: "The AI didn't return a usable response. Try rephrasing your question." };
+      }
+      const text = stripReasoningLeak(rawText);
+      if (!text) {
+        console.error("OpenRouter response was only reasoning, nothing extractable:", rawText);
         return { error: "The AI didn't return a usable response. Try rephrasing your question." };
       }
       return { text, provider: "openrouter" };
