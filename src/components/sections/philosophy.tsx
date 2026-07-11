@@ -36,7 +36,7 @@ export function Philosophy() {
         </FadeIn>
         <FadeIn delay={100} className="order-1 md:order-2 relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto">
           <Image
-            src="/images/coach-fitwid-kneeling.png"
+            src="/images/coach-fitwid-kneeling.webp"
             alt="FitWid — Discipline, Consistency, Transformation"
             fill
             sizes="(max-width: 768px) 90vw, 400px"

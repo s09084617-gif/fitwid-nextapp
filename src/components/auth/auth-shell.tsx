@@ -17,7 +17,7 @@ export function AuthShell({
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 py-16 relative overflow-hidden">
       <Image
-        src="/images/coach-fitwid-walking.png"
+        src="/images/coach-fitwid-walking.webp"
         alt=""
         fill
         aria-hidden="true"

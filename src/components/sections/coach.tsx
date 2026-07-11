@@ -19,7 +19,7 @@ export function Coach() {
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-12 items-center">
         <FadeIn className="relative aspect-[3/4] rounded-lg overflow-hidden border border-border max-w-sm mx-auto md:mx-0">
           <Image
-            src="/images/coach-fitwid-wall.png"
+            src="/images/coach-fitwid-wall.webp"
             alt="Coach Sahil Bansal at I-BLITZ Fitness Club"
             fill
             sizes="(max-width: 768px) 90vw, 400px"

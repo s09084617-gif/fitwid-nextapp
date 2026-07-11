@@ -6,26 +6,34 @@ import { PostHogProvider } from "@/lib/analytics/posthog-provider";
 export const metadata: Metadata = {
   metadataBase: new URL("https://fitwid.fit"),
   title: {
-    default: "FitWid | Science-Based Coaching",
+    default: "FitWid – AI Fitness Coach | Personalized Workout & Diet Plans",
     template: "%s | FitWid",
   },
   description:
-    "FitWid — science-based, progressive overload coaching. InBody-driven programming from I-BLITZ Fitness Club, Bangalore.",
+    "Get a free AI Body Assessment and receive personalized workout plans, meal plans, BMI, body fat analysis, and expert fitness coaching with FitWid.",
   openGraph: {
-    title: "FitWid | Science-Based Coaching",
+    title: "FitWid – AI Fitness Coach | Personalized Workout & Diet Plans",
     description:
-      "Personalized workouts, nutrition, and InBody-driven coaching from I-BLITZ Fitness Club, Bangalore.",
+      "Get a free AI Body Assessment and receive personalized workout plans, meal plans, BMI, body fat analysis, and expert fitness coaching with FitWid.",
     url: "https://fitwid.fit",
     siteName: "FitWid",
     locale: "en_IN",
     type: "website",
-    images: ["/images/fitwid-brand-poster-1.png"],
+    images: [
+      {
+        url: "/images/og-banner.jpg",
+        width: 1200,
+        height: 630,
+        alt: "FitWid — AI Fitness Coach: personalized workouts, meal plans, and coaching",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "FitWid | Science-Based Coaching",
-    description: "Personalized workouts, nutrition, and InBody-driven coaching.",
-    images: ["/images/fitwid-brand-poster-1.png"],
+    title: "FitWid – AI Fitness Coach | Personalized Workout & Diet Plans",
+    description:
+      "Get a free AI Body Assessment and receive personalized workout plans, meal plans, BMI, body fat analysis, and expert fitness coaching with FitWid.",
+    images: ["/images/og-banner.jpg"],
   },
 };
 

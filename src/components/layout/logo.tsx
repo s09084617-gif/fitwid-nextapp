@@ -18,7 +18,7 @@ export function Logo({
   return (
     <span className={cn("inline-flex items-center", s.gap, className)}>
       <Image
-        src="/images/fitwid-logo.jpg"
+        src="/images/fitwid-logo.webp"
         alt="FitWid"
         width={s.markPx}
         height={s.markPx}

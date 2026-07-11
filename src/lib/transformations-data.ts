@@ -17,7 +17,7 @@ export const TRANSFORMATIONS: Transformation[] = [
     duration: "16 Weeks",
     durationWeeks: 16,
     stat: "+8kg Muscle · −12kg Fat",
-    image: "/images/transform-man-tshirt.jpg",
+    image: "/images/transform-man-tshirt.webp",
     quote:
       "In 16 weeks I went from 78kg to 70kg while actually gaining muscle. The program was insane — but it worked.",
   },
@@ -27,7 +27,7 @@ export const TRANSFORMATIONS: Transformation[] = [
     duration: "20 Weeks",
     durationWeeks: 20,
     stat: "+5kg Muscle · −14kg Fat",
-    image: "/images/transform-woman-1.jpg",
+    image: "/images/transform-woman-1.webp",
     quote:
       "The weekly check-ins, the nutrition guidance, the accountability — it's a whole system.",
   },
@@ -37,7 +37,7 @@ export const TRANSFORMATIONS: Transformation[] = [
     duration: "14 Weeks",
     durationWeeks: 14,
     stat: "+10kg Muscle · −8kg Fat",
-    image: "/images/transform-man-tank.jpg",
+    image: "/images/transform-man-tank.webp",
     quote: null,
   },
 ];

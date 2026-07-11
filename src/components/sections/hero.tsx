@@ -30,7 +30,7 @@ export function Hero() {
             of being cropped to fill the frame. */}
         <div className="absolute inset-0">
           <Image
-            src="/images/hero-collage.jpg"
+            src="/images/hero-collage.webp"
             alt=""
             fill
             priority
@@ -39,7 +39,7 @@ export function Hero() {
             className="object-cover object-center scale-110 blur-2xl opacity-60"
           />
           <Image
-            src="/images/hero-collage.jpg"
+            src="/images/hero-collage.webp"
             alt=""
             fill
             priority
