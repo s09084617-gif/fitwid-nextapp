@@ -3,7 +3,8 @@
 import { createClient } from "@/lib/supabase/client";
 import type { AssessmentResult } from "@/lib/assessment";
 import type { WorkoutPlan } from "@/lib/workout-generator";
-import type { MealPlan } from "@/lib/meal-plan-generator";
+import type { MealPlan, WeeklyMealPlan, WeeklyMealPlanDay, WeeklySlot } from "@/lib/meal-plan-generator";
+import type { MacroTargets } from "@/lib/nutrition";
 
 export interface WeightEntry {
   date: string;
@@ -895,4 +896,231 @@ export interface ProfileSnapshot {
 export async function getMyProfileSnapshot(): Promise<ProfileSnapshot | null> {
   const last = await getLastAssessment();
   return last?.result.profileSnapshot ?? null;
+}
+
+// --- Weekly Nutrition Planner (new normalized tables) ---
+
+export interface SavedWeeklyMealPlan {
+  id: string;
+  title: string;
+  goal: string;
+  dietTag: string;
+  budgetTier: string;
+  targets: MacroTargets;
+  createdAt: string;
+  days: WeeklyMealPlanDay[];
+}
+
+/** Persists a generated 7-day plan across meal_plans + meals. Each meal
+ * row carries its own user_id (denormalized) purely to keep RLS simple. */
+export async function saveWeeklyMealPlan(plan: WeeklyMealPlan): Promise<string | null> {
+  const userId = await requireUserId();
+  if (!userId) return null;
+  const supabase = createClient();
+
+  const { data: planRow, error: planError } = await supabase
+    .from("meal_plans")
+    .insert({
+      user_id: userId,
+      title: plan.title,
+      goal: plan.goal,
+      diet_tag: plan.dietTag,
+      budget_tier: plan.budgetTier,
+      day_count: plan.days.length,
+      targets: plan.targets,
+    })
+    .select("id")
+    .single();
+
+  if (planError || !planRow) return null;
+
+  const mealRows = plan.days.flatMap((day) =>
+    day.meals.map((meal) => ({
+      meal_plan_id: planRow.id,
+      user_id: userId,
+      day_number: day.dayNumber,
+      slot: meal.slot,
+      foods: meal.foods,
+      calories: meal.calories,
+      protein_g: meal.proteinG,
+      carbs_g: meal.carbsG,
+      fat_g: meal.fatG,
+    }))
+  );
+  await supabase.from("meals").insert(mealRows);
+
+  return planRow.id as string;
+}
+
+export async function getSavedWeeklyMealPlans(): Promise<SavedWeeklyMealPlan[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+
+  const { data: plans } = await supabase
+    .from("meal_plans")
+    .select("id, title, goal, diet_tag, budget_tier, targets, created_at")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+  if (!plans || plans.length === 0) return [];
+
+  const { data: meals } = await supabase
+    .from("meals")
+    .select("id, meal_plan_id, day_number, slot, foods, calories, protein_g, carbs_g, fat_g, is_favorite")
+    .in("meal_plan_id", plans.map((p) => p.id));
+
+  return plans.map((p) => {
+    const planMeals = (meals ?? []).filter((m) => m.meal_plan_id === p.id);
+    const dayNumbers = [...new Set(planMeals.map((m) => m.day_number))].sort();
+    const days: WeeklyMealPlanDay[] = dayNumbers.map((dayNumber) => ({
+      dayNumber,
+      isTrainingDay: planMeals.some((m) => m.day_number === dayNumber && (m.slot === "PreWorkout" || m.slot === "PostWorkout")),
+      meals: planMeals
+        .filter((m) => m.day_number === dayNumber)
+        .map((m) => ({
+          slot: m.slot as WeeklySlot,
+          foods: m.foods,
+          calories: Number(m.calories),
+          proteinG: Number(m.protein_g),
+          carbsG: Number(m.carbs_g),
+          fatG: Number(m.fat_g),
+          isFavorite: m.is_favorite,
+        })),
+    }));
+    return {
+      id: p.id,
+      title: p.title,
+      goal: p.goal,
+      dietTag: p.diet_tag,
+      budgetTier: p.budget_tier,
+      targets: p.targets,
+      createdAt: p.created_at,
+      days,
+    };
+  });
+}
+
+export async function deleteWeeklyMealPlan(id: string): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("meal_plans").delete().eq("user_id", userId).eq("id", id);
+}
+
+export async function toggleFavoriteMeal(mealPlanId: string, dayNumber: number, slot: WeeklySlot, isFavorite: boolean): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase
+    .from("meals")
+    .update({ is_favorite: isFavorite })
+    .eq("user_id", userId)
+    .eq("meal_plan_id", mealPlanId)
+    .eq("day_number", dayNumber)
+    .eq("slot", slot);
+}
+
+export interface FavoriteMeal {
+  mealPlanId: string;
+  planTitle: string;
+  dayNumber: number;
+  slot: WeeklySlot;
+  foods: { name: string; servingDesc: string }[];
+  calories: number;
+}
+
+export async function getFavoriteMeals(): Promise<FavoriteMeal[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("meals")
+    .select("meal_plan_id, day_number, slot, foods, calories, meal_plans(title)")
+    .eq("user_id", userId)
+    .eq("is_favorite", true);
+  return (data ?? []).map((m) => ({
+    mealPlanId: m.meal_plan_id,
+    planTitle: (m.meal_plans as unknown as { title: string })?.title ?? "Meal Plan",
+    dayNumber: m.day_number,
+    slot: m.slot as WeeklySlot,
+    foods: (m.foods as { name: string; servingDesc: string }[]).map((f) => ({ name: f.name, servingDesc: f.servingDesc })),
+    calories: Number(m.calories),
+  }));
+}
+
+// --- Grocery Lists ---
+
+export async function saveGroceryList(mealPlanId: string, items: unknown): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("grocery_lists").insert({ meal_plan_id: mealPlanId, user_id: userId, items });
+}
+
+// --- Nutrition Logs (dashboard: consumed calories/macros/completion) ---
+
+export interface NutritionLogEntry {
+  id: string;
+  logDate: string;
+  slot: string;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+}
+
+export async function logMealEaten(input: {
+  mealPlanId?: string;
+  slot: string;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  logDate?: string;
+}): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase.from("nutrition_logs").insert({
+    user_id: userId,
+    log_date: input.logDate ?? todayISO(),
+    meal_plan_id: input.mealPlanId ?? null,
+    slot: input.slot,
+    calories: input.calories,
+    protein_g: input.proteinG,
+    carbs_g: input.carbsG,
+    fat_g: input.fatG,
+  });
+}
+
+export async function unlogMeal(logDate: string, slot: string): Promise<void> {
+  const userId = await requireUserId();
+  if (!userId) return;
+  const supabase = createClient();
+  await supabase
+    .from("nutrition_logs")
+    .delete()
+    .eq("user_id", userId)
+    .eq("log_date", logDate)
+    .eq("slot", slot);
+}
+
+export async function getNutritionLogsForDate(logDate: string): Promise<NutritionLogEntry[]> {
+  const userId = await requireUserId();
+  if (!userId) return [];
+  const supabase = createClient();
+  const { data } = await supabase
+    .from("nutrition_logs")
+    .select("id, log_date, slot, calories, protein_g, carbs_g, fat_g")
+    .eq("user_id", userId)
+    .eq("log_date", logDate);
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    logDate: r.log_date,
+    slot: r.slot,
+    calories: Number(r.calories),
+    proteinG: Number(r.protein_g),
+    carbsG: Number(r.carbs_g),
+    fatG: Number(r.fat_g),
+  }));
 }

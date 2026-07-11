@@ -5,6 +5,7 @@ import { DashboardClient } from "@/components/dashboard/dashboard-client";
 import { AssignedProgramCard } from "@/components/dashboard/assigned-program-card";
 import { OnboardingBanner } from "@/components/dashboard/onboarding-banner";
 import { CaloriesCard } from "@/components/dashboard/calories-card";
+import { TodaysMealsCard } from "@/components/dashboard/todays-meals-card";
 import { WorkoutSummary } from "@/components/dashboard/workout-summary";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 
@@ -39,12 +40,9 @@ export default async function DashboardOverviewPage() {
         <WorkoutSummary />
       </div>
 
-      <QuickActions />
+      <TodaysMealsCard />
 
-      <p className="text-xs text-muted text-center pt-2">
-        Calories and workout summary above are still placeholder data — food
-        and workout-session logging aren&apos;t connected to those cards yet.
-      </p>
+      <QuickActions />
     </div>
   );
 }
