@@ -15,7 +15,10 @@ import {
 
 declare global {
   interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
+    Razorpay: new (options: Record<string, unknown>) => {
+      open: () => void;
+      on: (event: string, handler: (response: unknown) => void) => void;
+    };
   }
 }
 
@@ -94,6 +97,15 @@ export default function BillingPage() {
         setPayingId(null);
       },
       modal: { ondismiss: () => setPayingId(null) },
+    });
+    razorpay.on("payment.failed", (response: unknown) => {
+      const err = (response as { error?: { description?: string } })?.error;
+      setError(
+        err?.description
+          ? `Payment failed: ${err.description}`
+          : "Payment failed — no amount was deducted. You can try again."
+      );
+      setPayingId(null);
     });
     razorpay.open();
   }

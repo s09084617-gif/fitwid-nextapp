@@ -57,6 +57,13 @@ export async function POST(request: Request) {
 
   const amountPaise = Math.round(finalPriceInr * 100); // Razorpay uses the smallest currency unit
 
+  if (amountPaise < 100) {
+    return NextResponse.json(
+      { error: "Order amount must be at least ₹1 (100 paise) after any discount." },
+      { status: 400 }
+    );
+  }
+
   try {
     const response = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
@@ -74,6 +81,12 @@ export async function POST(request: Request) {
     if (!response.ok) {
       const errText = await response.text();
       console.error("Razorpay order creation failed:", errText);
+      if (response.status === 401) {
+        return NextResponse.json(
+          { error: "Razorpay rejected the request credentials — check RAZORPAY_KEY_ID/SECRET." },
+          { status: 401 }
+        );
+      }
       return NextResponse.json({ error: "Couldn't create the payment order. Try again shortly." }, { status: 502 });
     }
 

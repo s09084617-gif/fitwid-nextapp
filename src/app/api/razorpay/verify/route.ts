@@ -28,6 +28,13 @@ export async function POST(request: Request) {
 
   const { orderId, paymentId, signature } = await request.json();
 
+  if (!orderId || !paymentId || !signature) {
+    return NextResponse.json(
+      { error: "Missing orderId, paymentId, or signature." },
+      { status: 400 }
+    );
+  }
+
   // Verify the payment is genuinely from Razorpay, not a forged client
   // request — this HMAC check is the whole reason verification happens
   // server-side rather than trusting the browser's "payment succeeded" call.
