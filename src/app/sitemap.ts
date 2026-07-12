@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/assessment`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${base}/transformations`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${base}/tools/bmi-calculator`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     ...blogUrls,
     { url: `${base}/signup`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/login`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

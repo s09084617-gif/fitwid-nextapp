@@ -15,6 +15,7 @@ const columns = [
       { label: "Pricing", href: "#pricing" },
       { label: "FAQ", href: "#faq" },
       { label: "Blog", href: "/blog" },
+      { label: "BMI Calculator", href: "/tools/bmi-calculator" },
     ],
   },
   {
